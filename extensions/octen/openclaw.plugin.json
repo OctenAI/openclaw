@@ -1,0 +1,11 @@
+{
+  "id": "octen",
+  "providers": [],
+  "providerAuthEnvVars": {},
+  "providerAuthChoices": [],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

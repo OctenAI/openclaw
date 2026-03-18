@@ -14,6 +14,7 @@ import mistralPlugin from "../../../extensions/mistral/index.js";
 import modelStudioPlugin from "../../../extensions/modelstudio/index.js";
 import moonshotPlugin from "../../../extensions/moonshot/index.js";
 import nvidiaPlugin from "../../../extensions/nvidia/index.js";
+import octenPlugin from "../../../extensions/octen/index.js";
 import ollamaPlugin from "../../../extensions/ollama/index.js";
 import openAIPlugin from "../../../extensions/openai/index.js";
 import opencodeGoPlugin from "../../../extensions/opencode-go/index.js";
@@ -97,6 +98,7 @@ const bundledWebSearchPlugins: Array<RegistrablePlugin & { credentialValue: unkn
   { ...firecrawlPlugin, credentialValue: "fc-test" },
   { ...googlePlugin, credentialValue: "AIza-test" },
   { ...moonshotPlugin, credentialValue: "sk-test" },
+  { ...octenPlugin, credentialValue: "octen-test" },
   { ...perplexityPlugin, credentialValue: "pplx-test" },
   { ...xaiPlugin, credentialValue: "xai-test" },
 ];

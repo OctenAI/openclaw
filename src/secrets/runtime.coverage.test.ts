@@ -1,9 +1,69 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AuthProfileStore } from "../agents/auth-profiles.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { getPath, setPathCreateStrict } from "./path-utils.js";
 import { clearSecretsRuntimeSnapshot, prepareSecretsRuntimeSnapshot } from "./runtime.js";
 import { listSecretTargetRegistryEntries } from "./target-registry.js";
+
+vi.mock("../plugins/web-search-providers.js", () => {
+  const getScoped = (key: string) => (search?: Record<string, unknown>) =>
+    (search?.[key] as { apiKey?: unknown } | undefined)?.apiKey;
+  const setScoped = (key: string) => (target: Record<string, unknown>, value: string) => {
+    if (!(key in target)) {
+      target[key] = {};
+    }
+    const scoped = target[key] as Record<string, unknown>;
+    scoped.apiKey = value;
+  };
+  return {
+    resolvePluginWebSearchProviders: () => [
+      {
+        id: "brave",
+        envVars: ["BRAVE_API_KEY"],
+        getCredentialValue: (search?: Record<string, unknown>) => search?.apiKey,
+        setCredentialValue: (target: Record<string, unknown>, value: string) => {
+          target.apiKey = value;
+        },
+      },
+      {
+        id: "firecrawl",
+        envVars: ["FIRECRAWL_API_KEY"],
+        getCredentialValue: getScoped("firecrawl"),
+        setCredentialValue: setScoped("firecrawl"),
+      },
+      {
+        id: "gemini",
+        envVars: ["GEMINI_API_KEY"],
+        getCredentialValue: getScoped("gemini"),
+        setCredentialValue: setScoped("gemini"),
+      },
+      {
+        id: "grok",
+        envVars: ["XAI_API_KEY"],
+        getCredentialValue: getScoped("grok"),
+        setCredentialValue: setScoped("grok"),
+      },
+      {
+        id: "kimi",
+        envVars: ["KIMI_API_KEY", "MOONSHOT_API_KEY"],
+        getCredentialValue: getScoped("kimi"),
+        setCredentialValue: setScoped("kimi"),
+      },
+      {
+        id: "octen",
+        envVars: ["OCTEN_API_KEY"],
+        getCredentialValue: getScoped("octen"),
+        setCredentialValue: setScoped("octen"),
+      },
+      {
+        id: "perplexity",
+        envVars: ["PERPLEXITY_API_KEY", "OPENROUTER_API_KEY"],
+        getCredentialValue: getScoped("perplexity"),
+        setCredentialValue: setScoped("perplexity"),
+      },
+    ],
+  };
+});
 
 type SecretRegistryEntry = ReturnType<typeof listSecretTargetRegistryEntries>[number];
 

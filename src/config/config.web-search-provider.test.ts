@@ -37,6 +37,11 @@ vi.mock("../plugins/web-search-providers.js", () => {
         getCredentialValue: getScoped("kimi"),
       },
       {
+        id: "octen",
+        envVars: ["OCTEN_API_KEY"],
+        getCredentialValue: getScoped("octen"),
+      },
+      {
         id: "perplexity",
         envVars: ["PERPLEXITY_API_KEY", "OPENROUTER_API_KEY"],
         getCredentialValue: getScoped("perplexity"),
@@ -141,6 +146,7 @@ describe("web search provider auto-detection", () => {
     delete process.env.GEMINI_API_KEY;
     delete process.env.KIMI_API_KEY;
     delete process.env.MOONSHOT_API_KEY;
+    delete process.env.OCTEN_API_KEY;
     delete process.env.PERPLEXITY_API_KEY;
     delete process.env.OPENROUTER_API_KEY;
     delete process.env.XAI_API_KEY;
@@ -202,6 +208,11 @@ describe("web search provider auto-detection", () => {
     expect(resolveSearchProvider({})).toBe("kimi");
   });
 
+  it("auto-detects octen when only OCTEN_API_KEY is set", () => {
+    process.env.OCTEN_API_KEY = "test-octen-key"; // pragma: allowlist secret
+    expect(resolveSearchProvider({})).toBe("octen");
+  });
+
   it("follows alphabetical order — brave wins when multiple keys available", () => {
     process.env.BRAVE_API_KEY = "test-brave-key"; // pragma: allowlist secret
     process.env.GEMINI_API_KEY = "test-gemini-key"; // pragma: allowlist secret
@@ -217,11 +228,25 @@ describe("web search provider auto-detection", () => {
     expect(resolveSearchProvider({})).toBe("gemini");
   });
 
-  it("grok wins over kimi and perplexity when brave and gemini unavailable", () => {
+  it("grok wins over kimi, octen and perplexity when brave and gemini unavailable", () => {
     process.env.XAI_API_KEY = "test-xai-key"; // pragma: allowlist secret
     process.env.KIMI_API_KEY = "test-kimi-key"; // pragma: allowlist secret
+    process.env.OCTEN_API_KEY = "test-octen-key"; // pragma: allowlist secret
     process.env.PERPLEXITY_API_KEY = "test-perplexity-key"; // pragma: allowlist secret
     expect(resolveSearchProvider({})).toBe("grok");
+  });
+
+  it("kimi wins over octen and perplexity when brave, gemini and grok unavailable", () => {
+    process.env.KIMI_API_KEY = "test-kimi-key"; // pragma: allowlist secret
+    process.env.OCTEN_API_KEY = "test-octen-key"; // pragma: allowlist secret
+    process.env.PERPLEXITY_API_KEY = "test-perplexity-key"; // pragma: allowlist secret
+    expect(resolveSearchProvider({})).toBe("kimi");
+  });
+
+  it("octen wins over perplexity when brave, gemini, grok and kimi unavailable", () => {
+    process.env.OCTEN_API_KEY = "test-octen-key"; // pragma: allowlist secret
+    process.env.PERPLEXITY_API_KEY = "test-perplexity-key"; // pragma: allowlist secret
+    expect(resolveSearchProvider({})).toBe("octen");
   });
 
   it("explicit provider always wins regardless of keys", () => {

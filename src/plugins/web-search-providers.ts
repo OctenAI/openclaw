@@ -19,6 +19,7 @@ const BUNDLED_WEB_SEARCH_ALLOWLIST_COMPAT_PLUGIN_IDS = [
   "firecrawl",
   "google",
   "moonshot",
+  "octen",
   "perplexity",
   "xai",
 ] as const;

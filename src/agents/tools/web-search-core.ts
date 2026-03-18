@@ -22,7 +22,7 @@ import {
   writeCache,
 } from "./web-shared.js";
 
-const SEARCH_PROVIDERS = ["brave", "gemini", "grok", "kimi", "perplexity"] as const;
+const SEARCH_PROVIDERS = ["brave", "gemini", "grok", "kimi", "perplexity", "octen"] as const;
 type SearchProvider = (typeof SEARCH_PROVIDERS)[number];
 const DEFAULT_SEARCH_COUNT = 5;
 const MAX_SEARCH_COUNT = 10;
@@ -44,6 +44,9 @@ const KIMI_WEB_SEARCH_TOOL = {
   type: "builtin_function",
   function: { name: "$web_search" },
 } as const;
+
+const DEFAULT_OCTEN_BASE_URL = "https://api.octen.ai";
+const OCTEN_SEARCH_ENDPOINT = "/search";
 
 const SEARCH_CACHE_KEY = Symbol.for("openclaw.web-search.cache");
 
@@ -514,6 +517,11 @@ type GeminiConfig = {
   model?: string;
 };
 
+type OctenConfig = {
+  apiKey?: string;
+  baseUrl?: string;
+};
+
 type GeminiGroundingResponse = {
   candidates?: Array<{
     content?: {
@@ -607,6 +615,14 @@ function missingSearchKeyPayload(provider: (typeof SEARCH_PROVIDERS)[number]) {
       docs: "https://docs.openclaw.ai/tools/web",
     };
   }
+  if (provider === "octen") {
+    return {
+      error: "missing_octen_api_key",
+      message:
+        "web_search (octen) needs an Octen API key. Set OCTEN_API_KEY in the Gateway environment, or configure tools.web.search.octen.apiKey.",
+      docs: "https://docs.openclaw.ai/tools/web",
+    };
+  }
   return {
     error: "missing_perplexity_api_key",
     message:
@@ -624,6 +640,7 @@ function resolveSearchProvider(search?: WebSearchConfig): (typeof SEARCH_PROVIDE
     search && "provider" in search && typeof search.provider === "string"
       ? search.provider.trim().toLowerCase()
       : "";
+
   if (raw === "brave") {
     return "brave";
   }
@@ -635,6 +652,9 @@ function resolveSearchProvider(search?: WebSearchConfig): (typeof SEARCH_PROVIDE
   }
   if (raw === "kimi") {
     return "kimi";
+  }
+  if (raw === "octen") {
+    return "octen";
   }
   if (raw === "perplexity") {
     return "perplexity";
@@ -681,6 +701,14 @@ function resolveSearchProvider(search?: WebSearchConfig): (typeof SEARCH_PROVIDE
         'web_search: no provider configured, auto-detected "perplexity" from available API keys',
       );
       return "perplexity";
+    }
+    // Octen
+    const octenConfig = resolveOctenConfig(search);
+    if (resolveOctenApiKey(octenConfig)) {
+      logVerbose(
+        'web_search: no provider configured, auto-detected "octen" from available API keys',
+      );
+      return "octen";
     }
   }
 
@@ -933,6 +961,32 @@ function resolveGeminiModel(gemini?: GeminiConfig): string {
   return fromConfig || DEFAULT_GEMINI_MODEL;
 }
 
+function resolveOctenConfig(search?: WebSearchConfig): OctenConfig {
+  if (!search || typeof search !== "object") {
+    return {};
+  }
+  const octen = "octen" in search ? search.octen : undefined;
+  if (!octen || typeof octen !== "object") {
+    return {};
+  }
+  return octen as OctenConfig;
+}
+
+function resolveOctenApiKey(octen?: OctenConfig): string | undefined {
+  const fromConfig = normalizeApiKey(octen?.apiKey);
+  if (fromConfig) {
+    return fromConfig;
+  }
+  const fromEnv = normalizeApiKey(process.env.OCTEN_API_KEY);
+  return fromEnv || undefined;
+}
+
+function resolveOctenBaseUrl(octen?: OctenConfig): string {
+  const fromConfig =
+    octen && "baseUrl" in octen && typeof octen.baseUrl === "string" ? octen.baseUrl.trim() : "";
+  return fromConfig || DEFAULT_OCTEN_BASE_URL;
+}
+
 async function withTrustedWebSearchEndpoint<T>(
   params: {
     url: string;
@@ -1035,6 +1089,86 @@ async function runGeminiSearch(params: {
       }
 
       return { content, citations };
+    },
+  );
+}
+
+type OctenSearchResult = {
+  title?: string;
+  url?: string;
+  highlight?: string;
+  full_content?: string;
+  authors?: string[];
+  time_published?: string;
+  time_last_crawled?: string;
+};
+
+type OctenSearchResponse = {
+  code?: number;
+  msg?: string;
+  data?: {
+    query?: string;
+    results?: OctenSearchResult[];
+  };
+  meta?: {
+    usage?: Record<string, unknown>;
+    latency?: Record<string, unknown>;
+    warning?: string;
+  };
+};
+
+async function runOctenSearch(params: {
+  query: string;
+  count: number;
+  apiKey: string;
+  baseUrl: string;
+  timeoutSeconds: number;
+}): Promise<
+  Array<{ title: string; url: string; description: string; published?: string; siteName?: string }>
+> {
+  const endpoint = `${params.baseUrl.trim().replace(/\/$/, "")}${OCTEN_SEARCH_ENDPOINT}`;
+
+  return withTrustedWebSearchEndpoint(
+    {
+      url: endpoint,
+      timeoutSeconds: params.timeoutSeconds,
+      init: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": params.apiKey,
+        },
+        body: JSON.stringify({
+          query: params.query,
+          count: params.count,
+        }),
+      },
+    },
+    async (res) => {
+      if (!res.ok) {
+        return await throwWebSearchApiError(res, "Octen");
+      }
+
+      const data = (await res.json()) as OctenSearchResponse;
+
+      if (data.code !== 0) {
+        throw new Error(`Octen API error (code ${data.code}): ${data.msg || "unknown error"}`);
+      }
+
+      const results = Array.isArray(data.data?.results) ? data.data.results : [];
+
+      return results.map((entry) => {
+        const title = entry.title ?? "";
+        const url = entry.url ?? "";
+        const description = entry.highlight ?? entry.full_content ?? "";
+        return {
+          title: title ? wrapWebContent(title, "web_search") : "",
+          url,
+          description: description ? wrapWebContent(description, "web_search") : "",
+          published: entry.time_published ?? undefined,
+          siteName: resolveSiteName(url) || undefined,
+        };
+      });
     },
   );
 }
@@ -1620,6 +1754,7 @@ async function runWebSearch(params: {
   geminiModel?: string;
   kimiBaseUrl?: string;
   kimiModel?: string;
+  octenBaseUrl?: string;
   braveMode?: "web" | "llm-context";
 }): Promise<Record<string, unknown>> {
   const effectiveBraveMode = params.braveMode ?? "web";
@@ -1632,7 +1767,9 @@ async function runWebSearch(params: {
           ? (params.geminiModel ?? DEFAULT_GEMINI_MODEL)
           : params.provider === "kimi"
             ? `${params.kimiBaseUrl ?? DEFAULT_KIMI_BASE_URL}:${params.kimiModel ?? DEFAULT_KIMI_MODEL}`
-            : "";
+            : params.provider === "octen"
+              ? (params.octenBaseUrl ?? DEFAULT_OCTEN_BASE_URL)
+              : "";
   const cacheKey = normalizeCacheKey(
     params.provider === "brave" && effectiveBraveMode === "llm-context"
       ? `${params.provider}:llm-context:${params.query}:${params.country || "default"}:${params.search_lang || params.language || "default"}:${params.freshness || "default"}`
@@ -1787,6 +1924,32 @@ async function runWebSearch(params: {
     return payload;
   }
 
+  if (params.provider === "octen") {
+    const results = await runOctenSearch({
+      query: params.query,
+      count: params.count,
+      apiKey: params.apiKey,
+      baseUrl: params.octenBaseUrl ?? DEFAULT_OCTEN_BASE_URL,
+      timeoutSeconds: params.timeoutSeconds,
+    });
+
+    const payload = {
+      query: params.query,
+      provider: params.provider,
+      count: results.length,
+      tookMs: Date.now() - start,
+      externalContent: {
+        untrusted: true,
+        source: "web_search",
+        provider: params.provider,
+        wrapped: true,
+      },
+      results,
+    };
+    writeCache(SEARCH_CACHE, cacheKey, payload, params.cacheTtlMs);
+    return payload;
+  }
+
   if (params.provider !== "brave") {
     throw new Error("Unsupported web search provider.");
   }
@@ -1929,6 +2092,7 @@ export function createWebSearchTool(options?: {
   const grokConfig = resolveGrokConfig(search);
   const geminiConfig = resolveGeminiConfig(search);
   const kimiConfig = resolveKimiConfig(search);
+  const octenConfig = resolveOctenConfig(search);
   const braveConfig = resolveBraveConfig(search);
   const braveMode = resolveBraveMode(braveConfig);
 
@@ -1943,9 +2107,11 @@ export function createWebSearchTool(options?: {
           ? "Search the web using Kimi by Moonshot. Returns AI-synthesized answers with citations from native $web_search."
           : provider === "gemini"
             ? "Search the web using Gemini with Google Search grounding. Returns AI-synthesized answers with citations from Google Search."
-            : braveMode === "llm-context"
-              ? "Search the web using Brave Search LLM Context API. Returns pre-extracted page content (text chunks, tables, code blocks) optimized for LLM grounding."
-              : "Search the web using Brave Search API. Supports region-specific and localized search via country and language parameters. Returns titles, URLs, and snippets for fast research.";
+            : provider === "octen"
+              ? "Search the web using Octen. Returns search results with titles, URLs, highlights, and optional full content extraction."
+              : braveMode === "llm-context"
+                ? "Search the web using Brave Search LLM Context API. Returns pre-extracted page content (text chunks, tables, code blocks) optimized for LLM grounding."
+                : "Search the web using Brave Search API. Supports region-specific and localized search via country and language parameters. Returns titles, URLs, and snippets for fast research.";
 
   return {
     label: "Web Search",
@@ -1969,7 +2135,9 @@ export function createWebSearchTool(options?: {
               ? resolveKimiApiKey(kimiConfig)
               : provider === "gemini"
                 ? resolveGeminiApiKey(geminiConfig)
-                : resolveSearchApiKey(search);
+                : provider === "octen"
+                  ? resolveOctenApiKey(octenConfig)
+                  : resolveSearchApiKey(search);
 
       if (!apiKey) {
         return jsonResult(missingSearchKeyPayload(provider));
@@ -2205,6 +2373,7 @@ export function createWebSearchTool(options?: {
         geminiModel: resolveGeminiModel(geminiConfig),
         kimiBaseUrl: resolveKimiBaseUrl(kimiConfig),
         kimiModel: resolveKimiModel(kimiConfig),
+        octenBaseUrl: resolveOctenBaseUrl(octenConfig),
         braveMode,
       });
       return jsonResult(result);

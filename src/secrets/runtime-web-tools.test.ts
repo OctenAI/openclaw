@@ -5,7 +5,67 @@ import * as secretResolve from "./resolve.js";
 import { createResolverContext } from "./runtime-shared.js";
 import { resolveRuntimeWebTools } from "./runtime-web-tools.js";
 
-type ProviderUnderTest = "brave" | "gemini" | "grok" | "kimi" | "perplexity";
+vi.mock("../plugins/web-search-providers.js", () => {
+  const getScoped = (key: string) => (search?: Record<string, unknown>) =>
+    (search?.[key] as { apiKey?: unknown } | undefined)?.apiKey;
+  const setScoped = (key: string) => (target: Record<string, unknown>, value: string) => {
+    if (!(key in target)) {
+      target[key] = {};
+    }
+    const scoped = target[key] as Record<string, unknown>;
+    scoped.apiKey = value;
+  };
+  return {
+    resolvePluginWebSearchProviders: () => [
+      {
+        id: "brave",
+        envVars: ["BRAVE_API_KEY"],
+        getCredentialValue: (search?: Record<string, unknown>) => search?.apiKey,
+        setCredentialValue: (target: Record<string, unknown>, value: string) => {
+          target.apiKey = value;
+        },
+      },
+      {
+        id: "firecrawl",
+        envVars: ["FIRECRAWL_API_KEY"],
+        getCredentialValue: getScoped("firecrawl"),
+        setCredentialValue: setScoped("firecrawl"),
+      },
+      {
+        id: "gemini",
+        envVars: ["GEMINI_API_KEY"],
+        getCredentialValue: getScoped("gemini"),
+        setCredentialValue: setScoped("gemini"),
+      },
+      {
+        id: "grok",
+        envVars: ["XAI_API_KEY"],
+        getCredentialValue: getScoped("grok"),
+        setCredentialValue: setScoped("grok"),
+      },
+      {
+        id: "kimi",
+        envVars: ["KIMI_API_KEY", "MOONSHOT_API_KEY"],
+        getCredentialValue: getScoped("kimi"),
+        setCredentialValue: setScoped("kimi"),
+      },
+      {
+        id: "octen",
+        envVars: ["OCTEN_API_KEY"],
+        getCredentialValue: getScoped("octen"),
+        setCredentialValue: setScoped("octen"),
+      },
+      {
+        id: "perplexity",
+        envVars: ["PERPLEXITY_API_KEY", "OPENROUTER_API_KEY"],
+        getCredentialValue: getScoped("perplexity"),
+        setCredentialValue: setScoped("perplexity"),
+      },
+    ],
+  };
+});
+
+type ProviderUnderTest = "brave" | "gemini" | "grok" | "kimi" | "octen" | "perplexity";
 
 function asConfig(value: unknown): OpenClawConfig {
   return value as OpenClawConfig;
@@ -62,6 +122,9 @@ function readProviderKey(config: OpenClawConfig, provider: ProviderUnderTest): u
   }
   if (provider === "kimi") {
     return config.tools?.web?.search?.kimi?.apiKey;
+  }
+  if (provider === "octen") {
+    return config.tools?.web?.search?.octen?.apiKey;
   }
   return config.tools?.web?.search?.perplexity?.apiKey;
 }
@@ -137,6 +200,11 @@ describe("runtime web tools resolution", () => {
       resolvedKey: "kimi-provider-key",
     },
     {
+      provider: "octen" as const,
+      envRefId: "OCTEN_PROVIDER_REF",
+      resolvedKey: "octen-provider-key",
+    },
+    {
       provider: "perplexity" as const,
       envRefId: "PERPLEXITY_PROVIDER_REF",
       resolvedKey: "pplx-provider-key",
@@ -181,6 +249,9 @@ describe("runtime web tools resolution", () => {
               kimi: {
                 apiKey: { source: "env", provider: "default", id: "KIMI_REF" },
               },
+              octen: {
+                apiKey: { source: "env", provider: "default", id: "OCTEN_REF" },
+              },
               perplexity: {
                 apiKey: { source: "env", provider: "default", id: "PERPLEXITY_REF" },
               },
@@ -193,6 +264,7 @@ describe("runtime web tools resolution", () => {
         GEMINI_REF: "gemini-precedence-key",
         GROK_REF: "grok-precedence-key",
         KIMI_REF: "kimi-precedence-key",
+        OCTEN_REF: "octen-precedence-key",
         PERPLEXITY_REF: "pplx-precedence-key",
       },
     });
@@ -205,6 +277,7 @@ describe("runtime web tools resolution", () => {
         expect.objectContaining({ path: "tools.web.search.gemini.apiKey" }),
         expect.objectContaining({ path: "tools.web.search.grok.apiKey" }),
         expect.objectContaining({ path: "tools.web.search.kimi.apiKey" }),
+        expect.objectContaining({ path: "tools.web.search.octen.apiKey" }),
         expect.objectContaining({ path: "tools.web.search.perplexity.apiKey" }),
       ]),
     );
