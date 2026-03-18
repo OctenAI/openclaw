@@ -493,6 +493,8 @@ importers:
 
   extensions/nvidia: {}
 
+  extensions/octen: {}
+
   extensions/ollama: {}
 
   extensions/open-prose: {}

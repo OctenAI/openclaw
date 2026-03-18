@@ -21,6 +21,7 @@ describe("resolvePluginWebSearchProviders", () => {
       "moonshot:kimi",
       "perplexity:perplexity",
       "firecrawl:firecrawl",
+      "octen:octen",
     ]);
     expect(providers.map((provider) => provider.credentialPath)).toEqual([
       "plugins.entries.brave.config.webSearch.apiKey",
@@ -29,6 +30,7 @@ describe("resolvePluginWebSearchProviders", () => {
       "plugins.entries.moonshot.config.webSearch.apiKey",
       "plugins.entries.perplexity.config.webSearch.apiKey",
       "plugins.entries.firecrawl.config.webSearch.apiKey",
+      "plugins.entries.octen.config.webSearch.apiKey",
     ]);
     expect(providers.find((provider) => provider.id === "firecrawl")?.applySelectionConfig).toEqual(
       expect.any(Function),
@@ -55,6 +57,7 @@ describe("resolvePluginWebSearchProviders", () => {
       "moonshot",
       "perplexity",
       "firecrawl",
+      "octen",
     ]);
   });
 

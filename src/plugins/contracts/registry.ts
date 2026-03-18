@@ -9,6 +9,7 @@ import mistralPlugin from "../../../extensions/mistral/index.js";
 import moonshotPlugin from "../../../extensions/moonshot/index.js";
 import openAIPlugin from "../../../extensions/openai/index.js";
 import perplexityPlugin from "../../../extensions/perplexity/index.js";
+import octenPlugin from "../../../extensions/octen/index.js";
 import xaiPlugin from "../../../extensions/xai/index.js";
 import zaiPlugin from "../../../extensions/zai/index.js";
 import { createCapturedPluginRegistration } from "../captured-registration.js";
@@ -59,6 +60,7 @@ const bundledWebSearchPlugins: Array<RegistrablePlugin & { credentialValue: unkn
   { ...moonshotPlugin, credentialValue: "sk-test" },
   { ...perplexityPlugin, credentialValue: "pplx-test" },
   { ...xaiPlugin, credentialValue: "xai-test" },
+  { ...octenPlugin, credentialValue: "octen-test" },
 ];
 
 const bundledSpeechPlugins: RegistrablePlugin[] = [elevenLabsPlugin, microsoftPlugin, openAIPlugin];
