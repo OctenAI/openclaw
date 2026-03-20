@@ -27,7 +27,7 @@ const DEFAULT_SEARCH_COUNT = 5;
 const MAX_SEARCH_COUNT = 10;
 
 const DEFAULT_OCTEN_BASE_URL = "https://api.octen.ai";
-const OCTEN_SEARCH_ENDPOINT = "/v1/search";
+const OCTEN_SEARCH_ENDPOINT = "/search";
 
 const SEARCH_CACHE = new Map<string, CacheEntry<Record<string, unknown>>>();
 
