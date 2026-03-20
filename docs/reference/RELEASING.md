@@ -21,7 +21,7 @@ When the operator says “release”, immediately do this preflight (no extra qu
 
 ## Versioning
 
-Current OpenClaw releases use date-based versioning.
+Current OctenClaw releases use date-based versioning.
 
 - Stable release version: `YYYY.M.D`
   - Git tag: `vYYYY.M.D`
@@ -32,7 +32,7 @@ Current OpenClaw releases use date-based versioning.
 - Use the same version string everywhere, minus the leading `v` where Git tags are not used:
   - `package.json`: `2026.3.8`
   - Git tag: `v2026.3.8`
-  - GitHub release title: `openclaw 2026.3.8`
+  - GitHub release title: `octenclaw 2026.3.8`
 - Do not zero-pad month or day. Use `2026.3.8`, not `2026.03.08`.
 - Stable and beta are npm dist-tags, not separate release lines:
   - `latest` = stable
@@ -50,7 +50,7 @@ Historical note:
 - [ ] Bump `package.json` version (e.g., `2026.1.29`).
 - [ ] Run `pnpm plugins:sync` to align extension package versions + changelogs.
 - [ ] Update CLI/version strings in [`src/version.ts`](https://github.com/openclaw/openclaw/blob/main/src/version.ts) and the Baileys user agent in [`src/web/session.ts`](https://github.com/openclaw/openclaw/blob/main/src/web/session.ts).
-- [ ] Confirm package metadata (name, description, repository, keywords, license) and `bin` map points to [`openclaw.mjs`](https://github.com/openclaw/openclaw/blob/main/openclaw.mjs) for `openclaw`.
+- [ ] Confirm package metadata (name, description, repository, keywords, license) and `bin` map points to [`openclaw.mjs`](https://github.com/openclaw/openclaw/blob/main/openclaw.mjs) for `octenclaw`.
 - [ ] If dependencies changed, run `pnpm install` so `pnpm-lock.yaml` is current.
 
 2. **Build & artifacts**
@@ -88,25 +88,25 @@ Historical note:
 - [ ] Keep the app zip (and optional dSYM zip) ready to attach to the GitHub release.
 - [ ] Follow [macOS release](/platforms/mac/release) for the exact commands and required env vars.
   - `APP_BUILD` must be numeric + monotonic (no `-beta`) so Sparkle compares versions correctly.
-  - If notarizing, use the `openclaw-notary` keychain profile created from App Store Connect API env vars (see [macOS release](/platforms/mac/release)).
+  - If notarizing, use the `octenclaw-notary` keychain profile created from App Store Connect API env vars (see [macOS release](/platforms/mac/release)).
 
 6. **Publish (npm)**
 
 - [ ] Confirm git status is clean; commit and push as needed.
-- [ ] Confirm npm trusted publishing is configured for the `openclaw` package.
+- [ ] Confirm npm trusted publishing is configured for the `octenclaw` package.
 - [ ] Push the matching git tag to trigger `.github/workflows/openclaw-npm-release.yml`.
   - Stable tags publish to npm `latest`.
   - Beta tags publish to npm `beta`.
   - The workflow rejects tags that do not match `package.json`, are not on `main`, or whose CalVer date is more than 2 UTC calendar days away from the release date.
-- [ ] Verify the registry: `npm view openclaw version`, `npm view openclaw dist-tags`, and `npx -y openclaw@X.Y.Z --version` (or `--help`).
+- [ ] Verify the registry: `npm view octenclaw version`, `npm view octenclaw dist-tags`, and `npx -y octenclaw@X.Y.Z --version` (or `--help`).
 
 ### Troubleshooting (notes from 2.0.0-beta2 release)
 
 - **npm pack/publish hangs or produces huge tarball**: the macOS app bundle in `dist/OpenClaw.app` (and release zips) get swept into the package. Fix by whitelisting publish contents via `package.json` `files` (include dist subdirs, docs, skills; exclude app bundles). Confirm with `npm pack --dry-run` that `dist/OpenClaw.app` is not listed.
 - **npm auth web loop for dist-tags**: use legacy auth to get an OTP prompt:
-  - `NPM_CONFIG_AUTH_TYPE=legacy npm dist-tag add openclaw@X.Y.Z latest`
+  - `NPM_CONFIG_AUTH_TYPE=legacy npm dist-tag add octenclaw@X.Y.Z latest`
 - **`npx` verification fails with `ECOMPROMISED: Lock compromised`**: retry with a fresh cache:
-  - `NPM_CONFIG_CACHE=/tmp/npm-cache-$(date +%s) npx -y openclaw@X.Y.Z --version`
+  - `NPM_CONFIG_CACHE=/tmp/npm-cache-$(date +%s) npx -y octenclaw@X.Y.Z --version`
 - **Tag needs repointing after a late fix**: force-update and push the tag, then ensure the GitHub release assets still match:
   - `git tag -f vX.Y.Z && git push -f origin vX.Y.Z`
 
@@ -114,10 +114,10 @@ Historical note:
 
 - [ ] Tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z` (or `git push --tags`).
   - Pushing the tag also triggers the npm release workflow.
-- [ ] Create/refresh the GitHub release for `vX.Y.Z` with **title `openclaw X.Y.Z`** (not just the tag); body should include the **full** changelog section for that version (Highlights + Changes + Fixes), inline (no bare links), and **must not repeat the title inside the body**.
-- [ ] Attach artifacts: `npm pack` tarball (optional), `OpenClaw-X.Y.Z.zip`, and `OpenClaw-X.Y.Z.dSYM.zip` (if generated).
+- [ ] Create/refresh the GitHub release for `vX.Y.Z` with **title `octenclaw X.Y.Z`** (not just the tag); body should include the **full** changelog section for that version (Highlights + Changes + Fixes), inline (no bare links), and **must not repeat the title inside the body**.
+- [ ] Attach artifacts: `npm pack` tarball (optional), `OctenClaw-X.Y.Z.zip`, and `OctenClaw-X.Y.Z.dSYM.zip` (if generated).
 - [ ] Commit the updated `appcast.xml` and push it (Sparkle feeds from main).
-- [ ] From a clean temp directory (no `package.json`), run `npx -y openclaw@X.Y.Z send --help` to confirm install/CLI entrypoints work.
+- [ ] From a clean temp directory (no `package.json`), run `npx -y octenclaw@X.Y.Z send --help` to confirm install/CLI entrypoints work.
 - [ ] Announce/share release notes.
 
 ## Plugin publish scope (npm)
@@ -128,7 +128,7 @@ plugins that are not on npm stay **disk-tree only** (still shipped in
 
 Process to derive the list:
 
-1. `npm search @openclaw --json` and capture the package names.
+1. `npm search @octenclaw --json` and capture the package names.
 2. Compare with `extensions/*/package.json` names.
 3. Publish only the **intersection** (already on npm).
 

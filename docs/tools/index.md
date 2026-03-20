@@ -1,15 +1,15 @@
 ---
-summary: "Agent tool surface for OpenClaw (browser, canvas, nodes, message, cron) replacing legacy `openclaw-*` skills"
+summary: "Agent tool surface for OctenClaw (browser, canvas, nodes, message, cron) replacing legacy `octenclaw-*` skills"
 read_when:
   - Adding or modifying agent tools
-  - Retiring or changing `openclaw-*` skills
+  - Retiring or changing `octenclaw-*` skills
 title: "Tools"
 ---
 
-# Tools (OpenClaw)
+# Tools (OctenClaw)
 
-OpenClaw exposes **first-class agent tools** for browser, canvas, nodes, and cron.
-These replace the old `openclaw-*` skills: the tools are typed, no shelling,
+OctenClaw exposes **first-class agent tools** for browser, canvas, nodes, and cron.
+These replace the old `octenclaw-*` skills: the tools are typed, no shelling,
 and the agent should rely on them directly.
 
 ## Disabling tools
@@ -27,7 +27,7 @@ Notes:
 
 - Matching is case-insensitive.
 - `*` wildcards are supported (`"*"` means all tools).
-- If `tools.allow` only references unknown or unloaded plugin tool names, OpenClaw logs a warning and ignores the allowlist so core tools stay available.
+- If `tools.allow` only references unknown or unloaded plugin tool names, OctenClaw logs a warning and ignores the allowlist so core tools stay available.
 
 ## Tool profiles (base allowlist)
 
@@ -151,7 +151,7 @@ Available groups:
 - `group:automation`: `cron`, `gateway`
 - `group:messaging`: `message`
 - `group:nodes`: `nodes`
-- `group:openclaw`: all built-in OpenClaw tools (excludes provider plugins)
+- `group:octenclaw`: all built-in OctenClaw tools (excludes provider plugins)
 
 Example (allow only file tools + browser):
 
@@ -208,7 +208,7 @@ Notes:
 - If `process` is disallowed, `exec` runs synchronously and ignores `yieldMs`/`background`.
 - `elevated` is gated by `tools.elevated` plus any `agents.list[].tools.elevated` override (both must allow) and is an alias for `host=gateway` + `security=full`.
 - `elevated` only changes behavior when the agent is sandboxed (otherwise it’s a no-op).
-- `host=node` can target a macOS companion app or a headless node host (`openclaw node run`).
+- `host=node` can target a macOS companion app or a headless node host (`octenclaw node run`).
 - gateway/node approvals and allowlists: [Exec approvals](/tools/exec-approvals).
 
 ### `process`
@@ -227,7 +227,7 @@ Notes:
 
 ### `loop-detection` (tool-call loop guardrails)
 
-OpenClaw tracks recent tool-call history and blocks or warns when it detects repetitive no-progress loops.
+OctenClaw tracks recent tool-call history and blocks or warns when it detects repetitive no-progress loops.
 Enable with `tools.loopDetection.enabled: true` (default is `false`).
 
 ```json5
@@ -265,7 +265,7 @@ Core parameters:
 
 Notes:
 
-- Requires an API key for the chosen provider (recommended: `openclaw configure --section web`).
+- Requires an API key for the chosen provider (recommended: `octenclaw configure --section web`).
 - Enable via `tools.web.search.enabled`.
 - Responses are cached (default 15 min).
 - See [Web tools](/tools/web) for setup.
@@ -291,7 +291,7 @@ Notes:
 
 ### `browser`
 
-Control the dedicated OpenClaw-managed browser.
+Control the dedicated OctenClaw-managed browser.
 
 Core actions:
 
@@ -316,11 +316,11 @@ Common parameters:
   Notes:
 - Requires `browser.enabled=true` (default is `true`; set `false` to disable).
 - All actions accept optional `profile` parameter for multi-instance support.
-- Omit `profile` for the safe default: isolated OpenClaw-managed browser (`openclaw`).
+- Omit `profile` for the safe default: isolated OctenClaw-managed browser (`octenclaw`).
 - Use `profile="user"` for the real local host browser when existing logins/cookies matter and the user is present to click/approve any attach prompt.
 - Use `profile="chrome-relay"` only for the Chrome extension / toolbar-button attach flow.
 - `profile="user"` and `profile="chrome-relay"` are host-only; do not combine them with sandbox/node targets.
-- When `profile` is omitted, uses `browser.defaultProfile` (defaults to `openclaw`).
+- When `profile` is omitted, uses `browser.defaultProfile` (defaults to `octenclaw`).
 - Profile names: lowercase alphanumeric + hyphens only (max 64 chars).
 - Port range: 18800-18899 (~100 profiles max).
 - Remote profiles are attach-only (no start/stop/reset).
@@ -347,7 +347,7 @@ Notes:
 - Uses gateway `node.invoke` under the hood.
 - If no `node` is provided, the tool picks a default (single connected node or local mac node).
 - A2UI is v0.8 only (no `createSurface`); the CLI rejects v0.9 JSONL with line errors.
-- Quick smoke: `openclaw nodes canvas a2ui push --node <id> --text "Hello from A2UI"`.
+- Quick smoke: `octenclaw nodes canvas a2ui push --node <id> --text "Hello from A2UI"`.
 
 ### `nodes`
 
@@ -456,7 +456,7 @@ Restart or apply updates to the running Gateway process (in-place).
 
 Core actions:
 
-- `restart` (authorizes + sends `SIGUSR1` for in-process restart; `openclaw gateway` restart in-place)
+- `restart` (authorizes + sends `SIGUSR1` for in-process restart; `octenclaw gateway` restart in-place)
 - `config.schema.lookup` (inspect one config path at a time without loading the full schema into prompt context)
 - `config.get`
 - `config.apply` (validate + write config + restart + wake)
@@ -496,7 +496,7 @@ Notes:
   - Supports one-shot mode (`mode: "run"`) and persistent thread-bound mode (`mode: "session"` with `thread: true`).
   - If `thread: true` and `mode` is omitted, mode defaults to `session`.
   - `mode: "session"` requires `thread: true`.
-  - If `runTimeoutSeconds` is omitted, OpenClaw uses `agents.defaults.subagents.runTimeoutSeconds` when set; otherwise timeout defaults to `0` (no timeout).
+  - If `runTimeoutSeconds` is omitted, OctenClaw uses `agents.defaults.subagents.runTimeoutSeconds` when set; otherwise timeout defaults to `0` (no timeout).
   - Discord thread-bound flows depend on `session.threadBindings.*` and `channels.discord.threadBindings.*`.
   - Reply format includes `Status`, `Result`, and compact stats.
   - `Result` is the assistant completion text; if missing, the latest `toolResult` is used as fallback.
@@ -508,7 +508,7 @@ Notes:
 - ACP `streamTo: "parent"` responses may include `streamLogPath` (session-scoped `*.acp-stream.jsonl`) for tailing progress history.
 - `sessions_send` runs a reply‑back ping‑pong (reply `REPLY_SKIP` to stop; max turns via `session.agentToAgent.maxPingPongTurns`, 0–5).
 - After the ping‑pong, the target agent runs an **announce step**; reply `ANNOUNCE_SKIP` to suppress the announcement.
-- Sandbox clamp: when the current session is sandboxed and `agents.defaults.sandbox.sessionToolsVisibility: "spawned"`, OpenClaw clamps `tools.sessions.visibility` to `tree`.
+- Sandbox clamp: when the current session is sandboxed and `agents.defaults.sandbox.sessionToolsVisibility: "spawned"`, OctenClaw clamps `tools.sessions.visibility` to `tree`.
 
 ### `agents_list`
 

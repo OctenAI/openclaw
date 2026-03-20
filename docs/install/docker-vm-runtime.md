@@ -1,7 +1,7 @@
 ---
-summary: "Shared Docker VM runtime steps for long-lived OpenClaw Gateway hosts"
+summary: "Shared Docker VM runtime steps for long-lived OctenClaw Gateway hosts"
 read_when:
-  - You are deploying OpenClaw on a cloud VM with Docker
+  - You are deploying OctenClaw on a cloud VM with Docker
   - You need the shared binary bake, persistence, and update flow
 title: "Docker VM Runtime"
 ---
@@ -75,7 +75,7 @@ CMD ["node","dist/index.js"]
 
 ```bash
 docker compose build
-docker compose up -d openclaw-gateway
+docker compose up -d octenclaw-gateway
 ```
 
 If build fails with `Killed` or `exit code 137` during `pnpm install --frozen-lockfile`, the VM is out of memory.
@@ -84,9 +84,9 @@ Use a larger machine class before retrying.
 Verify binaries:
 
 ```bash
-docker compose exec openclaw-gateway which gog
-docker compose exec openclaw-gateway which goplaces
-docker compose exec openclaw-gateway which wacli
+docker compose exec octenclaw-gateway which gog
+docker compose exec octenclaw-gateway which goplaces
+docker compose exec octenclaw-gateway which wacli
 ```
 
 Expected output:
@@ -100,7 +100,7 @@ Expected output:
 Verify Gateway:
 
 ```bash
-docker compose logs -f openclaw-gateway
+docker compose logs -f octenclaw-gateway
 ```
 
 Expected output:
@@ -111,7 +111,7 @@ Expected output:
 
 ## What persists where
 
-OpenClaw runs in Docker, but Docker is not the source of truth.
+OctenClaw runs in Docker, but Docker is not the source of truth.
 All long-lived state must survive restarts, rebuilds, and reboots.
 
 | Component           | Location                          | Persistence mechanism  | Notes                            |
@@ -129,7 +129,7 @@ All long-lived state must survive restarts, rebuilds, and reboots.
 
 ## Updates
 
-To update OpenClaw on the VM:
+To update OctenClaw on the VM:
 
 ```bash
 git pull

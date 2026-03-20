@@ -1,5 +1,5 @@
 ---
-summary: "OpenClaw plugins/extensions: discovery, config, and safety"
+summary: "OctenClaw plugins/extensions: discovery, config, and safety"
 read_when:
   - Adding or modifying plugins/extensions
   - Documenting plugin install or load rules
@@ -10,11 +10,11 @@ title: "Plugins"
 
 ## Quick start (new to plugins?)
 
-A plugin is just a **small code module** that extends OpenClaw with extra
+A plugin is just a **small code module** that extends OctenClaw with extra
 features (commands, tools, and Gateway RPC).
 
 Most of the time, you’ll use plugins when you want a feature that’s not built
-into core OpenClaw yet (or you want to keep optional features out of your main
+into core OctenClaw yet (or you want to keep optional features out of your main
 install).
 
 Fast path:
@@ -22,20 +22,20 @@ Fast path:
 1. See what’s already loaded:
 
 ```bash
-openclaw plugins list
+octenclaw plugins list
 ```
 
 2. Install an official plugin (example: Voice Call):
 
 ```bash
-openclaw plugins install @openclaw/voice-call
+octenclaw plugins install @openclaw/voice-call
 ```
 
 Npm specs are **registry-only** (package name + optional **exact version** or
 **dist-tag**). Git/URL/file specs and semver ranges are rejected.
 
 Bare specs and `@latest` stay on the stable track. If npm resolves either of
-those to a prerelease, OpenClaw stops and asks you to opt in explicitly with a
+those to a prerelease, OctenClaw stops and asks you to opt in explicitly with a
 prerelease tag such as `@beta`/`@rc` or an exact prerelease version.
 
 3. Restart the Gateway, then configure under `plugins.entries.<id>.config`.
@@ -45,10 +45,10 @@ Looking for third-party listings? See [Community plugins](/plugins/community).
 
 ## Architecture
 
-OpenClaw's plugin system has four layers:
+OctenClaw's plugin system has four layers:
 
 1. **Manifest + discovery**
-   OpenClaw finds candidate plugins from configured paths, workspace roots,
+   OctenClaw finds candidate plugins from configured paths, workspace roots,
    global extension roots, and bundled extensions. Discovery reads
    `openclaw.plugin.json` plus package metadata first.
 2. **Enablement + validation**
@@ -58,7 +58,7 @@ OpenClaw's plugin system has four layers:
    Enabled plugins are loaded in-process via jiti and register capabilities into
    a central registry.
 4. **Surface consumption**
-   The rest of OpenClaw reads the registry to expose tools, channels, provider
+   The rest of OctenClaw reads the registry to expose tools, channels, provider
    setup, hooks, HTTP routes, CLI commands, and services.
 
 The important design boundary:
@@ -67,7 +67,7 @@ The important design boundary:
   without executing plugin code
 - runtime behavior comes from the plugin module's `register(api)` path
 
-That split lets OpenClaw validate config, explain missing/disabled plugins, and
+That split lets OctenClaw validate config, explain missing/disabled plugins, and
 build UI/schema hints before the full runtime is active.
 
 ## Execution model
@@ -80,7 +80,7 @@ Implications:
 - a plugin can register tools, network handlers, hooks, and services
 - a plugin bug can crash or destabilize the gateway
 - a malicious plugin is equivalent to arbitrary code execution inside the
-  OpenClaw process
+  OctenClaw process
 
 Use allowlists and explicit install/load paths for non-bundled plugins. Treat
 workspace plugins as development-time code, not production defaults.
@@ -108,7 +108,7 @@ Important trust note:
 - Qwen OAuth (provider auth) — bundled as `qwen-portal-auth` (disabled by default)
 - Copilot Proxy (provider auth) — local VS Code Copilot Proxy bridge; distinct from built-in `github-copilot` device login (bundled, disabled by default)
 
-OpenClaw plugins are **TypeScript modules** loaded at runtime via jiti. **Config
+OctenClaw plugins are **TypeScript modules** loaded at runtime via jiti. **Config
 validation does not execute plugin code**; it uses the plugin manifest and JSON
 Schema instead. See [Plugin manifest](/plugins/manifest).
 
@@ -129,7 +129,7 @@ Tool authoring guide: [Plugin agent tools](/plugins/agent-tools).
 
 ## Load pipeline
 
-At startup, OpenClaw does roughly this:
+At startup, OctenClaw does roughly this:
 
 1. discover candidate plugin roots
 2. read `openclaw.plugin.json` and package metadata
@@ -147,7 +147,7 @@ ownership looks suspicious for non-bundled plugins.
 
 ### Manifest-first behavior
 
-The manifest is the control-plane source of truth. OpenClaw uses it to:
+The manifest is the control-plane source of truth. OctenClaw uses it to:
 
 - identify the plugin
 - discover declared channels/skills/config schema
@@ -160,7 +160,7 @@ hooks, tools, commands, or provider flows.
 
 ### What the loader caches
 
-OpenClaw keeps short in-process caches for:
+OctenClaw keeps short in-process caches for:
 
 - discovery results
 - manifest registry data
@@ -175,7 +175,7 @@ Plugins can access selected core helpers via `api.runtime`. For telephony TTS:
 
 ```ts
 const result = await api.runtime.tts.textToSpeechTelephony({
-  text: "Hello from OpenClaw",
+  text: "Hello from OctenClaw",
   cfg: api.config,
 });
 ```
@@ -284,8 +284,8 @@ Why:
 
 - `resolveAccount(...)` is the runtime path. It is allowed to assume credentials
   are fully materialized and can fail fast when required secrets are missing.
-- Read-only command paths such as `openclaw status`, `openclaw status --all`,
-  `openclaw channels status`, `openclaw channels resolve`, and doctor/config
+- Read-only command paths such as `octenclaw status`, `octenclaw status --all`,
+  `octenclaw channels status`, `octenclaw channels resolve`, and doctor/config
   repair flows should not need to materialize runtime credentials just to
   describe configuration.
 
@@ -318,7 +318,7 @@ Performance note:
 
 ## Discovery & precedence
 
-OpenClaw scans, in order:
+OctenClaw scans, in order:
 
 1. Config paths
 
@@ -334,12 +334,12 @@ OpenClaw scans, in order:
 - `~/.openclaw/extensions/*.ts`
 - `~/.openclaw/extensions/*/index.ts`
 
-4. Bundled extensions (shipped with OpenClaw, mostly disabled by default)
+4. Bundled extensions (shipped with OctenClaw, mostly disabled by default)
 
-- `<openclaw>/extensions/*`
+- `<octenclaw>/extensions/*`
 
 Most bundled plugins must be enabled explicitly via
-`plugins.entries.<id>.enabled` or `openclaw plugins enable <id>`.
+`plugins.entries.<id>.enabled` or `octenclaw plugins enable <id>`.
 
 Default-on bundled plugin exceptions:
 
@@ -356,8 +356,8 @@ become production gateway code.
 
 Hardening notes:
 
-- If `plugins.allow` is empty and non-bundled plugins are discoverable, OpenClaw logs a startup warning with plugin ids and sources.
-- Candidate paths are safety-checked before discovery admission. OpenClaw blocks candidates when:
+- If `plugins.allow` is empty and non-bundled plugins are discoverable, OctenClaw logs a startup warning with plugin ids and sources.
+- Candidate paths are safety-checked before discovery admission. OctenClaw blocks candidates when:
   - extension entry resolves outside plugin root (including symlink/path traversal escapes),
   - plugin root/source path is world-writable,
   - path ownership is suspicious for non-bundled plugins (POSIX owner is neither current uid nor root).
@@ -405,7 +405,7 @@ A plugin directory may include a `package.json` with `openclaw.extensions`:
 ```json
 {
   "name": "my-pack",
-  "openclaw": {
+  "octenclaw": {
     "extensions": ["./src/safety.ts", "./src/tools.ts"]
   }
 }
@@ -421,7 +421,7 @@ Security guardrail: every `openclaw.extensions` entry must stay inside the plugi
 directory after symlink resolution. Entries that escape the package directory are
 rejected.
 
-Security note: `openclaw plugins install` installs plugin dependencies with
+Security note: `octenclaw plugins install` installs plugin dependencies with
 `npm install --ignore-scripts` (no lifecycle scripts). Keep plugin dependency
 trees "pure JS/TS" and avoid packages that require `postinstall` builds.
 
@@ -435,7 +435,7 @@ Example:
 ```json
 {
   "name": "@openclaw/nextcloud-talk",
-  "openclaw": {
+  "octenclaw": {
     "extensions": ["./index.ts"],
     "channel": {
       "id": "nextcloud-talk",
@@ -456,7 +456,7 @@ Example:
 }
 ```
 
-OpenClaw can also merge **external channel catalogs** (for example, an MPM
+OctenClaw can also merge **external channel catalogs** (for example, an MPM
 registry export). Drop a JSON file at one of:
 
 - `~/.openclaw/mpm/plugins.json`
@@ -465,7 +465,7 @@ registry export). Drop a JSON file at one of:
 
 Or point `OPENCLAW_PLUGIN_CATALOG_PATHS` (or `OPENCLAW_MPM_CATALOG_PATHS`) at
 one or more JSON files (comma/semicolon/`PATH`-delimited). Each file should
-contain `{ "entries": [ { "name": "@scope/pkg", "openclaw": { "channel": {...}, "install": {...} } } ] }`.
+contain `{ "entries": [ { "name": "@scope/pkg", "octenclaw": { "channel": {...}, "install": {...} } } ] }`.
 
 ## Plugin IDs
 
@@ -474,7 +474,7 @@ Default plugin ids:
 - Package packs: `package.json` `name`
 - Standalone file: file base name (`~/.../voice-call.ts` → `voice-call`)
 
-If a plugin exports `id`, OpenClaw uses it but warns when it doesn’t match the
+If a plugin exports `id`, OctenClaw uses it but warns when it doesn’t match the
 configured id.
 
 ## Registry model
@@ -549,7 +549,7 @@ These states are intentionally different:
 - **missing**: config references a plugin id that discovery did not find
 - **invalid**: plugin exists, but its config does not match the declared schema
 
-OpenClaw preserves config for disabled plugins so toggling them back on is not
+OctenClaw preserves config for disabled plugins so toggling them back on is not
 destructive.
 
 ## Plugin slots (exclusive categories)
@@ -590,7 +590,7 @@ pipeline rather than just add memory search or hooks.
 
 The Control UI uses `config.schema` (JSON Schema + `uiHints`) to render better forms.
 
-OpenClaw augments `uiHints` at runtime based on discovered plugins:
+OctenClaw augments `uiHints` at runtime based on discovered plugins:
 
 - Adds per-plugin labels for `plugins.entries.<id>` / `.enabled` / `.config`
 - Merges optional plugin-provided config field hints under:
@@ -622,26 +622,26 @@ Example:
 ## CLI
 
 ```bash
-openclaw plugins list
-openclaw plugins info <id>
-openclaw plugins install <path>                 # copy a local file/dir into ~/.openclaw/extensions/<id>
-openclaw plugins install ./extensions/voice-call # relative path ok
-openclaw plugins install ./plugin.tgz           # install from a local tarball
-openclaw plugins install ./plugin.zip           # install from a local zip
-openclaw plugins install -l ./extensions/voice-call # link (no copy) for dev
-openclaw plugins install @openclaw/voice-call # install from npm
-openclaw plugins install @openclaw/voice-call --pin # store exact resolved name@version
-openclaw plugins update <id>
-openclaw plugins update --all
-openclaw plugins enable <id>
-openclaw plugins disable <id>
-openclaw plugins doctor
+octenclaw plugins list
+octenclaw plugins info <id>
+octenclaw plugins install <path>                 # copy a local file/dir into ~/.openclaw/extensions/<id>
+octenclaw plugins install ./extensions/voice-call # relative path ok
+octenclaw plugins install ./plugin.tgz           # install from a local tarball
+octenclaw plugins install ./plugin.zip           # install from a local zip
+octenclaw plugins install -l ./extensions/voice-call # link (no copy) for dev
+octenclaw plugins install @openclaw/voice-call # install from npm
+octenclaw plugins install @openclaw/voice-call --pin # store exact resolved name@version
+octenclaw plugins update <id>
+octenclaw plugins update --all
+octenclaw plugins enable <id>
+octenclaw plugins disable <id>
+octenclaw plugins doctor
 ```
 
 `plugins update` only works for npm installs tracked under `plugins.installs`.
-If stored integrity metadata changes between updates, OpenClaw warns and asks for confirmation (use global `--yes` to bypass prompts).
+If stored integrity metadata changes between updates, OctenClaw warns and asks for confirmation (use global `--yes` to bypass prompts).
 
-Plugins may also register their own top‑level commands (example: `openclaw voicecall`).
+Plugins may also register their own top‑level commands (example: `octenclaw voicecall`).
 
 ## Plugin API (overview)
 
@@ -720,8 +720,8 @@ Notes:
 
 - Register hooks explicitly via `api.registerHook(...)`.
 - Hook eligibility rules still apply (OS/bins/env/config requirements).
-- Plugin-managed hooks show up in `openclaw hooks list` with `plugin:<id>`.
-- You cannot enable/disable plugin-managed hooks via `openclaw hooks`; enable/disable the plugin instead.
+- Plugin-managed hooks show up in `octenclaw hooks list` with `plugin:<id>`.
+- You cannot enable/disable plugin-managed hooks via `octenclaw hooks`; enable/disable the plugin instead.
 
 ### Agent lifecycle hooks (`api.on`)
 
@@ -750,7 +750,7 @@ Important hooks for prompt construction:
 Core-enforced hook policy:
 
 - Operators can disable prompt mutation hooks per plugin via `plugins.entries.<id>.hooks.allowPromptInjection: false`.
-- When disabled, OpenClaw blocks `before_prompt_build` and ignores prompt-mutating fields returned from legacy `before_agent_start` while preserving legacy `modelOverride` and `providerOverride`.
+- When disabled, OctenClaw blocks `before_prompt_build` and ignores prompt-mutating fields returned from legacy `before_agent_start` while preserving legacy `modelOverride` and `providerOverride`.
 
 `before_prompt_build` result fields:
 
@@ -779,7 +779,7 @@ Migration guidance:
 ## Provider plugins (model auth)
 
 Plugins can register **model providers** so users can run OAuth or API-key
-setup inside OpenClaw, surface provider setup in onboarding/model-pickers, and
+setup inside OctenClaw, surface provider setup in onboarding/model-pickers, and
 contribute implicit provider discovery.
 
 Provider plugins are the modular extension seam for model-provider setup. They
@@ -793,11 +793,11 @@ A provider plugin can participate in five distinct phases:
    `auth[].run(ctx)` performs OAuth, API-key capture, device code, or custom
    setup and returns auth profiles plus optional config patches.
 2. **Non-interactive setup**
-   `auth[].runNonInteractive(ctx)` handles `openclaw onboard --non-interactive`
+   `auth[].runNonInteractive(ctx)` handles `octenclaw onboard --non-interactive`
    without prompts. Use this when the provider needs custom headless setup
    beyond the built-in simple API-key paths.
 3. **Wizard integration**
-   `wizard.onboarding` adds an entry to `openclaw onboard`.
+   `wizard.onboarding` adds an entry to `octenclaw onboard`.
    `wizard.modelPicker` adds a setup entry to the model picker.
 4. **Implicit discovery**
    `discovery.run(ctx)` can contribute provider config automatically during
@@ -881,9 +881,9 @@ entry in model selection:
 - `methodId`
 
 When a provider has multiple auth methods, the wizard can either point at one
-explicit method or let OpenClaw synthesize per-method choices.
+explicit method or let OctenClaw synthesize per-method choices.
 
-OpenClaw validates provider wizard metadata when the plugin registers:
+OctenClaw validates provider wizard metadata when the plugin registers:
 
 - duplicate or blank auth-method ids are rejected
 - wizard metadata is ignored when the provider has no auth methods
@@ -956,8 +956,8 @@ Register a provider via `api.registerProvider(...)`. Each provider exposes one
 or more auth methods (OAuth, API key, device code, etc.). Those methods can
 power:
 
-- `openclaw models auth login --provider <id> [--method <id>]`
-- `openclaw onboard`
+- `octenclaw models auth login --provider <id> [--method <id>]`
+- `octenclaw onboard`
 - model-picker “custom provider” setup entries
 - implicit provider discovery during model resolution/listing
 
@@ -1029,7 +1029,7 @@ Notes:
   headless onboarding.
 - Return `configPatch` when you need to add default models or provider config.
 - Return `defaultModel` so `--set-default` can update agent defaults.
-- `wizard.onboarding` adds a provider choice to `openclaw onboard`.
+- `wizard.onboarding` adds a provider choice to `octenclaw onboard`.
 - `wizard.modelPicker` adds a “setup this provider” entry to the model picker.
 - `discovery.run` returns either `{ provider }` for the plugin’s own provider id
   or `{ providers }` for multi-provider discovery.
@@ -1244,7 +1244,7 @@ Command handler context:
 - `isAuthorizedSender`: Whether the sender is an authorized user
 - `args`: Arguments passed after the command (if `acceptsArgs: true`)
 - `commandBody`: The full command text
-- `config`: The current OpenClaw config
+- `config`: The current OctenClaw config
 
 Command options:
 
@@ -1308,14 +1308,14 @@ it’s present in your workspace/managed skills locations.
 
 Recommended packaging:
 
-- Main package: `openclaw` (this repo)
+- Main package: `octenclaw` (this repo)
 - Plugins: separate npm packages under `@openclaw/*` (example: `@openclaw/voice-call`)
 
 Publishing contract:
 
 - Plugin `package.json` must include `openclaw.extensions` with one or more entry files.
 - Entry files can be `.js` or `.ts` (jiti loads TS at runtime).
-- `openclaw plugins install <npm-spec>` uses `npm pack`, extracts into `~/.openclaw/extensions/<id>/`, and enables it in config.
+- `octenclaw plugins install <npm-spec>` uses `npm pack`, extracts into `~/.openclaw/extensions/<id>/`, and enables it in config.
 - Config key stability: scoped packages are normalized to the **unscoped** id for `plugins.entries.*`.
 
 ## Example plugin: Voice Call
@@ -1324,7 +1324,7 @@ This repo includes a voice‑call plugin (Twilio or log fallback):
 
 - Source: `extensions/voice-call`
 - Skill: `skills/voice-call`
-- CLI: `openclaw voicecall start|status`
+- CLI: `octenclaw voicecall start|status`
 - Tool: `voice_call`
 - RPC: `voicecall.start`, `voicecall.status`
 - Config (twilio): `provider: "twilio"` + `twilio.accountSid/authToken/from` (optional `statusCallbackUrl`, `twimlUrl`)

@@ -1,12 +1,12 @@
 ---
-summary: "OpenClaw macOS release checklist (Sparkle feed, packaging, signing)"
+summary: "OctenClaw macOS release checklist (Sparkle feed, packaging, signing)"
 read_when:
-  - Cutting or validating a OpenClaw macOS release
+  - Cutting or validating a OctenClaw macOS release
   - Updating the Sparkle appcast or feed assets
 title: "macOS Release"
 ---
 
-# OpenClaw macOS release (Sparkle)
+# OctenClaw macOS release (Sparkle)
 
 This app now ships Sparkle auto-updates. Release builds must be Developer ID–signed, zipped, and published with a signed appcast entry.
 
@@ -15,10 +15,10 @@ This app now ships Sparkle auto-updates. Release builds must be Developer ID–s
 - Developer ID Application cert installed (example: `Developer ID Application: <Developer Name> (<TEAMID>)`).
 - Sparkle private key path set in the environment as `SPARKLE_PRIVATE_KEY_FILE` (path to your Sparkle ed25519 private key; public key baked into Info.plist). If it is missing, check `~/.profile`.
 - Notary credentials (keychain profile or API key) for `xcrun notarytool` if you want Gatekeeper-safe DMG/zip distribution.
-  - We use a Keychain profile named `openclaw-notary`, created from App Store Connect API key env vars in your shell profile:
+  - We use a Keychain profile named `octenclaw-notary`, created from App Store Connect API key env vars in your shell profile:
     - `APP_STORE_CONNECT_API_KEY_P8`, `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`
     - `echo "$APP_STORE_CONNECT_API_KEY_P8" | sed 's/\\n/\n/g' > /tmp/openclaw-notary.p8`
-    - `xcrun notarytool store-credentials "openclaw-notary" --key /tmp/openclaw-notary.p8 --key-id "$APP_STORE_CONNECT_KEY_ID" --issuer "$APP_STORE_CONNECT_ISSUER_ID"`
+    - `xcrun notarytool store-credentials "octenclaw-notary" --key /tmp/openclaw-notary.p8 --key-id "$APP_STORE_CONNECT_KEY_ID" --issuer "$APP_STORE_CONNECT_ISSUER_ID"`
 - `pnpm` deps installed (`pnpm install --config.node-linker=hoisted`).
 - Sparkle tools are fetched automatically via SwiftPM at `apps/macos/.build/artifacts/sparkle/Sparkle/bin/` (`sign_update`, `generate_appcast`, etc.).
 
@@ -54,9 +54,9 @@ scripts/create-dmg.sh dist/OpenClaw.app dist/OpenClaw-2026.3.13.dmg
 
 # Recommended: build + notarize/staple zip + DMG
 # First, create a keychain profile once:
-#   xcrun notarytool store-credentials "openclaw-notary" \
+#   xcrun notarytool store-credentials "octenclaw-notary" \
 #     --apple-id "<apple-id>" --team-id "<team-id>" --password "<app-specific-password>"
-NOTARIZE=1 NOTARYTOOL_PROFILE=openclaw-notary \
+NOTARIZE=1 NOTARYTOOL_PROFILE=octenclaw-notary \
 BUNDLE_ID=ai.openclaw.mac \
 APP_VERSION=2026.3.13 \
 BUILD_CONFIG=release \
@@ -80,7 +80,7 @@ Commit the updated `appcast.xml` alongside the release assets (zip + dSYM) when 
 
 ## Publish & verify
 
-- Upload `OpenClaw-2026.3.13.zip` (and `OpenClaw-2026.3.13.dSYM.zip`) to the GitHub release for tag `v2026.3.13`.
+- Upload `OctenClaw-2026.3.13.zip` (and `OctenClaw-2026.3.13.dSYM.zip`) to the GitHub release for tag `v2026.3.13`.
 - Ensure the raw appcast URL matches the baked feed: `https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml`.
 - Sanity checks:
   - `curl -I https://raw.githubusercontent.com/openclaw/openclaw/main/appcast.xml` returns 200.

@@ -93,7 +93,7 @@ Connect (first message):
     "minProtocol": 2,
     "maxProtocol": 2,
     "client": {
-      "id": "openclaw-macos",
+      "id": "octenclaw-macos",
       "displayName": "macos",
       "version": "1.0.0",
       "platform": "macos 15.1",

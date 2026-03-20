@@ -1,7 +1,7 @@
 ---
 summary: "LINE Messaging API plugin setup, config, and usage"
 read_when:
-  - You want to connect OpenClaw to LINE
+  - You want to connect OctenClaw to LINE
   - You need LINE webhook + credential setup
   - You want LINE-specific message options
 title: LINE
@@ -9,7 +9,7 @@ title: LINE
 
 # LINE (plugin)
 
-LINE connects to OpenClaw via the LINE Messaging API. The plugin runs as a webhook
+LINE connects to OctenClaw via the LINE Messaging API. The plugin runs as a webhook
 receiver on the gateway and uses your channel access token + channel secret for
 authentication.
 
@@ -22,13 +22,13 @@ are not supported.
 Install the LINE plugin:
 
 ```bash
-openclaw plugins install @openclaw/line
+octenclaw plugins install @openclaw/line
 ```
 
 Local checkout (when running from a git repo):
 
 ```bash
-openclaw plugins install ./extensions/line
+octenclaw plugins install ./extensions/line
 ```
 
 ## Setup
@@ -50,7 +50,7 @@ If you need a custom path, set `channels.line.webhookPath` or
 
 Security note:
 
-- LINE signature verification is body-dependent (HMAC over the raw body), so OpenClaw applies strict pre-auth body limits and timeout before verification.
+- LINE signature verification is body-dependent (HMAC over the raw body), so OctenClaw applies strict pre-auth body limits and timeout before verification.
 
 ## Configure
 
@@ -113,8 +113,8 @@ Direct messages default to pairing. Unknown senders get a pairing code and their
 messages are ignored until approved.
 
 ```bash
-openclaw pairing list line
-openclaw pairing approve line <CODE>
+octenclaw pairing list line
+octenclaw pairing approve line <CODE>
 ```
 
 Allowlists and policies:

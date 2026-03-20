@@ -1,5 +1,5 @@
 ---
-summary: "Install OpenClaw declaratively with Nix"
+summary: "Install OctenClaw declaratively with Nix"
 read_when:
   - You want reproducible, rollback-able installs
   - You're already using Nix/NixOS/Home Manager
@@ -9,15 +9,15 @@ title: "Nix"
 
 # Nix Installation
 
-The recommended way to run OpenClaw with Nix is via **[nix-openclaw](https://github.com/openclaw/nix-openclaw)** — a batteries-included Home Manager module.
+The recommended way to run OctenClaw with Nix is via **[nix-octenclaw](https://github.com/openclaw/nix-octenclaw)** — a batteries-included Home Manager module.
 
 ## Quick Start
 
 Paste this to your AI agent (Claude, Cursor, etc.):
 
 ```text
-I want to set up nix-openclaw on my Mac.
-Repository: github:openclaw/nix-openclaw
+I want to set up nix-octenclaw on my Mac.
+Repository: github:openclaw/nix-octenclaw
 
 What I need you to do:
 1. Check if Determinate Nix is installed (if not, install it)
@@ -27,12 +27,12 @@ What I need you to do:
 5. Fill in the template placeholders and run home-manager switch
 6. Verify: launchd running, bot responds to messages
 
-Reference the nix-openclaw README for module options.
+Reference the nix-octenclaw README for module options.
 ```
 
-> **📦 Full guide: [github.com/openclaw/nix-openclaw](https://github.com/openclaw/nix-openclaw)**
+> **📦 Full guide: [github.com/openclaw/nix-octenclaw](https://github.com/openclaw/nix-octenclaw)**
 >
-> The nix-openclaw repo is the source of truth for Nix installation. This page is just a quick overview.
+> The nix-octenclaw repo is the source of truth for Nix installation. This page is just a quick overview.
 
 ## What you get
 
@@ -45,9 +45,9 @@ Reference the nix-openclaw README for module options.
 
 ## Nix Mode Runtime Behavior
 
-When `OPENCLAW_NIX_MODE=1` is set (automatic with nix-openclaw):
+When `OPENCLAW_NIX_MODE=1` is set (automatic with nix-octenclaw):
 
-OpenClaw supports a **Nix mode** that makes configuration deterministic and disables auto-install flows.
+OctenClaw supports a **Nix mode** that makes configuration deterministic and disables auto-install flows.
 Enable it by exporting:
 
 ```bash
@@ -63,7 +63,7 @@ defaults write ai.openclaw.mac openclaw.nixMode -bool true
 
 ### Config + state paths
 
-OpenClaw reads JSON5 config from `OPENCLAW_CONFIG_PATH` and stores mutable data in `OPENCLAW_STATE_DIR`.
+OctenClaw reads JSON5 config from `OPENCLAW_CONFIG_PATH` and stores mutable data in `OPENCLAW_STATE_DIR`.
 When needed, you can also set `OPENCLAW_HOME` to control the base home directory used for internal path resolution.
 
 - `OPENCLAW_HOME` (default precedence: `HOME` / `USERPROFILE` / `os.homedir()`)
@@ -93,6 +93,6 @@ packaging and Nix builds (which do not rely on a full Xcode toolchain).
 
 ## Related
 
-- [nix-openclaw](https://github.com/openclaw/nix-openclaw) — full setup guide
+- [nix-octenclaw](https://github.com/openclaw/nix-octenclaw) — full setup guide
 - [Wizard](/start/wizard) — non-Nix CLI setup
 - [Docker](/install/docker) — containerized setup

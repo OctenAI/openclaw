@@ -1,27 +1,27 @@
 ---
-summary: "CLI reference for `openclaw config` (get/set/unset/file/validate)"
+summary: "CLI reference for `octenclaw config` (get/set/unset/file/validate)"
 read_when:
   - You want to read or edit config non-interactively
 title: "config"
 ---
 
-# `openclaw config`
+# `octenclaw config`
 
 Config helpers: get/set/unset/validate values by path and print the active
 config file. Run without a subcommand to open
-the configure wizard (same as `openclaw configure`).
+the configure wizard (same as `octenclaw configure`).
 
 ## Examples
 
 ```bash
-openclaw config file
-openclaw config get browser.executablePath
-openclaw config set browser.executablePath "/usr/bin/google-chrome"
-openclaw config set agents.defaults.heartbeat.every "2h"
-openclaw config set agents.list[0].tools.exec.node "node-id-or-name"
-openclaw config unset tools.web.search.apiKey
-openclaw config validate
-openclaw config validate --json
+octenclaw config file
+octenclaw config get browser.executablePath
+octenclaw config set browser.executablePath "/usr/bin/google-chrome"
+octenclaw config set agents.defaults.heartbeat.every "2h"
+octenclaw config set agents.list[0].tools.exec.node "node-id-or-name"
+octenclaw config unset tools.web.search.apiKey
+octenclaw config validate
+octenclaw config validate --json
 ```
 
 ## Paths
@@ -29,15 +29,15 @@ openclaw config validate --json
 Paths use dot or bracket notation:
 
 ```bash
-openclaw config get agents.defaults.workspace
-openclaw config get agents.list[0].id
+octenclaw config get agents.defaults.workspace
+octenclaw config get agents.list[0].id
 ```
 
 Use the agent list index to target a specific agent:
 
 ```bash
-openclaw config get agents.list
-openclaw config set agents.list[1].tools.exec.node "node-id-or-name"
+octenclaw config get agents.list
+octenclaw config set agents.list[1].tools.exec.node "node-id-or-name"
 ```
 
 ## Values
@@ -46,9 +46,9 @@ Values are parsed as JSON5 when possible; otherwise they are treated as strings.
 Use `--strict-json` to require JSON5 parsing. `--json` remains supported as a legacy alias.
 
 ```bash
-openclaw config set agents.defaults.heartbeat.every "0m"
-openclaw config set gateway.port 19001 --strict-json
-openclaw config set channels.whatsapp.groups '["*"]' --strict-json
+octenclaw config set agents.defaults.heartbeat.every "0m"
+octenclaw config set gateway.port 19001 --strict-json
+octenclaw config set channels.whatsapp.groups '["*"]' --strict-json
 ```
 
 ## Subcommands
@@ -63,6 +63,6 @@ Validate the current config against the active schema without starting the
 gateway.
 
 ```bash
-openclaw config validate
-openclaw config validate --json
+octenclaw config validate
+octenclaw config validate --json
 ```

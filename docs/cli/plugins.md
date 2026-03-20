@@ -1,12 +1,12 @@
 ---
-summary: "CLI reference for `openclaw plugins` (list, install, uninstall, enable/disable, doctor)"
+summary: "CLI reference for `octenclaw plugins` (list, install, uninstall, enable/disable, doctor)"
 read_when:
   - You want to install or manage in-process Gateway plugins
   - You want to debug plugin load failures
 title: "plugins"
 ---
 
-# `openclaw plugins`
+# `octenclaw plugins`
 
 Manage Gateway plugins/extensions (loaded in-process).
 
@@ -19,17 +19,17 @@ Related:
 ## Commands
 
 ```bash
-openclaw plugins list
-openclaw plugins info <id>
-openclaw plugins enable <id>
-openclaw plugins disable <id>
-openclaw plugins uninstall <id>
-openclaw plugins doctor
-openclaw plugins update <id>
-openclaw plugins update --all
+octenclaw plugins list
+octenclaw plugins info <id>
+octenclaw plugins enable <id>
+octenclaw plugins disable <id>
+octenclaw plugins uninstall <id>
+octenclaw plugins doctor
+octenclaw plugins update <id>
+octenclaw plugins update --all
 ```
 
-Bundled plugins ship with OpenClaw but start disabled. Use `plugins enable` to
+Bundled plugins ship with OctenClaw but start disabled. Use `plugins enable` to
 activate them.
 
 All plugins must ship a `openclaw.plugin.json` file with an inline JSON Schema
@@ -39,8 +39,8 @@ the plugin from loading and fail config validation.
 ### Install
 
 ```bash
-openclaw plugins install <path-or-spec>
-openclaw plugins install <npm-spec> --pin
+octenclaw plugins install <path-or-spec>
+octenclaw plugins install <npm-spec> --pin
 ```
 
 Security note: treat plugin installs like running code. Prefer pinned versions.
@@ -50,11 +50,11 @@ Npm specs are **registry-only** (package name + optional **exact version** or
 installs run with `--ignore-scripts` for safety.
 
 Bare specs and `@latest` stay on the stable track. If npm resolves either of
-those to a prerelease, OpenClaw stops and asks you to opt in explicitly with a
+those to a prerelease, OctenClaw stops and asks you to opt in explicitly with a
 prerelease tag such as `@beta`/`@rc` or an exact prerelease version such as
 `@1.2.3-beta.4`.
 
-If a bare install spec matches a bundled plugin id (for example `diffs`), OpenClaw
+If a bare install spec matches a bundled plugin id (for example `diffs`), OctenClaw
 installs the bundled plugin directly. To install an npm package with the same
 name, use an explicit scoped spec (for example `@scope/diffs`).
 
@@ -63,7 +63,7 @@ Supported archives: `.zip`, `.tgz`, `.tar.gz`, `.tar`.
 Use `--link` to avoid copying a local directory (adds to `plugins.load.paths`):
 
 ```bash
-openclaw plugins install -l ./my-plugin
+octenclaw plugins install -l ./my-plugin
 ```
 
 Use `--pin` on npm installs to save the resolved exact spec (`name@version`) in
@@ -72,9 +72,9 @@ Use `--pin` on npm installs to save the resolved exact spec (`name@version`) in
 ### Uninstall
 
 ```bash
-openclaw plugins uninstall <id>
-openclaw plugins uninstall <id> --dry-run
-openclaw plugins uninstall <id> --keep-files
+octenclaw plugins uninstall <id>
+octenclaw plugins uninstall <id> --dry-run
+octenclaw plugins uninstall <id> --keep-files
 ```
 
 `uninstall` removes plugin records from `plugins.entries`, `plugins.installs`,
@@ -90,13 +90,13 @@ state dir extensions root (`$OPENCLAW_STATE_DIR/extensions/<id>`). Use
 ### Update
 
 ```bash
-openclaw plugins update <id>
-openclaw plugins update --all
-openclaw plugins update <id> --dry-run
+octenclaw plugins update <id>
+octenclaw plugins update --all
+octenclaw plugins update <id> --dry-run
 ```
 
 Updates only apply to plugins installed from npm (tracked in `plugins.installs`).
 
 When a stored integrity hash exists and the fetched artifact hash changes,
-OpenClaw prints a warning and asks for confirmation before proceeding. Use
+OctenClaw prints a warning and asks for confirmation before proceeding. Use
 global `--yes` to bypass prompts in CI/non-interactive runs.

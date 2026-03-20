@@ -21,13 +21,13 @@ Canvas state is stored under Application Support:
 
 The Canvas panel serves those files via a **custom URL scheme**:
 
-- `openclaw-canvas://<session>/<path>`
+- `octenclaw-canvas://<session>/<path>`
 
 Examples:
 
-- `openclaw-canvas://main/` → `<canvasRoot>/main/index.html`
-- `openclaw-canvas://main/assets/app.css` → `<canvasRoot>/main/assets/app.css`
-- `openclaw-canvas://main/widgets/todo/` → `<canvasRoot>/main/widgets/todo/index.html`
+- `octenclaw-canvas://main/` → `<canvasRoot>/main/index.html`
+- `octenclaw-canvas://main/assets/app.css` → `<canvasRoot>/main/assets/app.css`
+- `octenclaw-canvas://main/widgets/todo/` → `<canvasRoot>/main/widgets/todo/index.html`
 
 If no `index.html` exists at the root, the app shows a **built‑in scaffold page**.
 
@@ -53,10 +53,10 @@ Canvas is exposed via the **Gateway WebSocket**, so the agent can:
 CLI examples:
 
 ```bash
-openclaw nodes canvas present --node <id>
-openclaw nodes canvas navigate --node <id> --url "/"
-openclaw nodes canvas eval --node <id> --js "document.title"
-openclaw nodes canvas snapshot --node <id>
+octenclaw nodes canvas present --node <id>
+octenclaw nodes canvas navigate --node <id> --url "/"
+octenclaw nodes canvas eval --node <id> --js "document.title"
+octenclaw nodes canvas snapshot --node <id>
 ```
 
 Notes:
@@ -95,25 +95,25 @@ cat > /tmp/a2ui-v0.8.jsonl <<'EOFA2'
 {"beginRendering":{"surfaceId":"main","root":"root"}}
 EOFA2
 
-openclaw nodes canvas a2ui push --jsonl /tmp/a2ui-v0.8.jsonl --node <id>
+octenclaw nodes canvas a2ui push --jsonl /tmp/a2ui-v0.8.jsonl --node <id>
 ```
 
 Quick smoke:
 
 ```bash
-openclaw nodes canvas a2ui push --node <id> --text "Hello from A2UI"
+octenclaw nodes canvas a2ui push --node <id> --text "Hello from A2UI"
 ```
 
 ## Triggering agent runs from Canvas
 
 Canvas can trigger new agent runs via deep links:
 
-- `openclaw://agent?...`
+- `octenclaw://agent?...`
 
 Example (in JS):
 
 ```js
-window.location.href = "openclaw://agent?message=Review%20this%20design";
+window.location.href = "octenclaw://agent?message=Review%20this%20design";
 ```
 
 The app prompts for confirmation unless a valid key is provided.

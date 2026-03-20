@@ -10,7 +10,7 @@ sidebarTitle: "Wizard Reference"
 
 # Onboarding Wizard Reference
 
-This is the full reference for the `openclaw onboard` CLI wizard.
+This is the full reference for the `octenclaw onboard` CLI wizard.
 For a high-level overview, see [Onboarding Wizard](/start/wizard).
 
 ## Flow details (local mode)
@@ -23,7 +23,7 @@ For a high-level overview, see [Onboarding Wizard](/start/wizard).
     - CLI `--reset` defaults to `config+creds+sessions`; use `--reset-scope full`
       to also remove workspace.
     - If the config is invalid or contains legacy keys, the wizard stops and asks
-      you to run `openclaw doctor` before continuing.
+      you to run `octenclaw doctor` before continuing.
     - Reset uses `trash` (never `rm`) and offers scopes:
       - Config only
       - Config + credentials + sessions
@@ -94,13 +94,13 @@ For a high-level overview, see [Onboarding Wizard](/start/wizard).
     - [Signal](/channels/signal): optional `signal-cli` install + account config.
     - [BlueBubbles](/channels/bluebubbles): **recommended for iMessage**; server URL + password + webhook.
     - [iMessage](/channels/imessage): legacy `imsg` CLI path + DB access.
-    - DM security: default is pairing. First DM sends a code; approve via `openclaw pairing approve <channel> <code>` or use allowlists.
+    - DM security: default is pairing. First DM sends a code; approve via `octenclaw pairing approve <channel> <code>` or use allowlists.
   </Step>
   <Step title="Web search">
     - Pick a provider: Perplexity, Brave, Gemini, Grok, or Kimi (or skip).
     - Paste your API key (QuickStart auto-detects keys from env vars or existing config).
     - Skip with `--skip-search`.
-    - Configure later: `openclaw configure --section web`.
+    - Configure later: `octenclaw configure --section web`.
   </Step>
   <Step title="Daemon install">
     - macOS: LaunchAgent
@@ -114,8 +114,8 @@ For a high-level overview, see [Onboarding Wizard](/start/wizard).
     - If both `gateway.auth.token` and `gateway.auth.password` are configured and `gateway.auth.mode` is unset, daemon install is blocked until mode is set explicitly.
   </Step>
   <Step title="Health check">
-    - Starts the Gateway (if needed) and runs `openclaw health`.
-    - Tip: `openclaw status --deep` adds gateway health probes to status output (requires a reachable gateway).
+    - Starts the Gateway (if needed) and runs `octenclaw health`.
+    - Tip: `octenclaw status --deep` adds gateway health probes to status output (requires a reachable gateway).
   </Step>
   <Step title="Skills (recommended)">
     - Reads the available skills and checks requirements.
@@ -137,7 +137,7 @@ If the Control UI assets are missing, the wizard attempts to build them; fallbac
 Use `--non-interactive` to automate or script onboarding:
 
 ```bash
-openclaw onboard --non-interactive \
+octenclaw onboard --non-interactive \
   --mode local \
   --auth-choice apiKey \
   --anthropic-api-key "$ANTHROPIC_API_KEY" \
@@ -154,7 +154,7 @@ Gateway token SecretRef in non-interactive mode:
 
 ```bash
 export OPENCLAW_GATEWAY_TOKEN="your-token"
-openclaw onboard --non-interactive \
+octenclaw onboard --non-interactive \
   --mode local \
   --auth-choice skip \
   --gateway-auth token \
@@ -173,7 +173,7 @@ Use this reference page for flag semantics and step ordering.
 ### Add agent (non-interactive)
 
 ```bash
-openclaw agents add work \
+octenclaw agents add work \
   --workspace ~/.openclaw/workspace-work \
   --model openai/gpt-5.2 \
   --bind whatsapp:biz \
@@ -218,7 +218,7 @@ Typical fields in `~/.openclaw/openclaw.json`:
 - `wizard.lastRunCommand`
 - `wizard.lastRunMode`
 
-`openclaw agents add` writes `agents.list[]` and optional `bindings`.
+`octenclaw agents add` writes `agents.list[]` and optional `bindings`.
 
 WhatsApp credentials go under `~/.openclaw/credentials/whatsapp/<accountId>/`.
 Sessions are stored under `~/.openclaw/agents/<agentId>/sessions/`.

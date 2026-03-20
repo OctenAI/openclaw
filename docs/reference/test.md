@@ -77,7 +77,7 @@ Full cold-start flow in a clean Linux container:
 scripts/e2e/onboard-docker.sh
 ```
 
-This script drives the interactive wizard via a pseudo-tty, verifies config/workspace/session files, then starts the gateway and runs `openclaw health`.
+This script drives the interactive wizard via a pseudo-tty, verifies config/workspace/session files, then starts the gateway and runs `octenclaw health`.
 
 ## QR import smoke (Docker)
 

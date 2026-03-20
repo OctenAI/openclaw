@@ -227,7 +227,7 @@ describe("web processMessage inbound contract", () => {
     expect(getDispatcherResponsePrefix()).toBe("[Mainbot]");
   });
 
-  it("does not force an [openclaw] response prefix in self-chats when identity is unset", async () => {
+  it("does not force an [octenclaw] response prefix in self-chats when identity is unset", async () => {
     await processSelfDirectMessage({
       messages: {},
       session: { store: sessionStorePath },

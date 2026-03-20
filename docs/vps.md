@@ -1,5 +1,5 @@
 ---
-summary: "VPS hosting hub for OpenClaw (Oracle/Fly/Hetzner/GCP/exe.dev)"
+summary: "VPS hosting hub for OctenClaw (Oracle/Fly/Hetzner/GCP/exe.dev)"
 read_when:
   - You want to run the Gateway in the cloud
   - You need a quick map of VPS/hosting guides
@@ -86,7 +86,7 @@ For VM hosts using `systemd`, consider:
 Example:
 
 ```bash
-sudo systemctl edit openclaw
+sudo systemctl edit octenclaw
 ```
 
 ```ini

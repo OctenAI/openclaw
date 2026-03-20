@@ -1,15 +1,15 @@
 ---
 title: Fly.io
-description: Deploy OpenClaw on Fly.io
-summary: "Step-by-step Fly.io deployment for OpenClaw with persistent storage and HTTPS"
+description: Deploy OctenClaw on Fly.io
+summary: "Step-by-step Fly.io deployment for OctenClaw with persistent storage and HTTPS"
 read_when:
-  - Deploying OpenClaw on Fly.io
+  - Deploying OctenClaw on Fly.io
   - Setting up Fly volumes, secrets, and first-run config
 ---
 
 # Fly.io Deployment
 
-**Goal:** OpenClaw Gateway running on a [Fly.io](https://fly.io) machine with persistent storage, automatic HTTPS, and Discord/channel access.
+**Goal:** OctenClaw Gateway running on a [Fly.io](https://fly.io) machine with persistent storage, automatic HTTPS, and Discord/channel access.
 
 ## What you need
 
@@ -30,10 +30,10 @@ read_when:
 ```bash
 # Clone the repo
 git clone https://github.com/openclaw/openclaw.git
-cd openclaw
+cd octenclaw
 
 # Create a new Fly app (pick your own name)
-fly apps create my-openclaw
+fly apps create my-octenclaw
 
 # Create a persistent volume (1GB is usually enough)
 fly volumes create openclaw_data --size 1 --region iad
@@ -48,7 +48,7 @@ Edit `fly.toml` to match your app name and requirements.
 **Security note:** The default config exposes a public URL. For a hardened deployment with no public IP, see [Private Deployment](#private-deployment-hardened) or use `fly.private.toml`.
 
 ```toml
-app = "my-openclaw"  # Your app name
+app = "my-octenclaw"  # Your app name
 primary_region = "iad"
 
 [build]
@@ -382,18 +382,18 @@ Or convert an existing deployment:
 
 ```bash
 # List current IPs
-fly ips list -a my-openclaw
+fly ips list -a my-octenclaw
 
 # Release public IPs
-fly ips release <public-ipv4> -a my-openclaw
-fly ips release <public-ipv6> -a my-openclaw
+fly ips release <public-ipv4> -a my-octenclaw
+fly ips release <public-ipv6> -a my-octenclaw
 
 # Switch to private config so future deploys don't re-allocate public IPs
 # (remove [http_service] or deploy with the private template)
 fly deploy -c fly.private.toml
 
 # Allocate private-only IPv6
-fly ips allocate-v6 --private -a my-openclaw
+fly ips allocate-v6 --private -a my-octenclaw
 ```
 
 After this, `fly ips list` should show only a `private` type IP:
@@ -411,7 +411,7 @@ Since there's no public URL, use one of these methods:
 
 ```bash
 # Forward local port 3000 to the app
-fly proxy 3000:3000 -a my-openclaw
+fly proxy 3000:3000 -a my-octenclaw
 
 # Then open http://localhost:3000 in browser
 ```
@@ -429,7 +429,7 @@ fly wireguard create
 **Option 3: SSH only**
 
 ```bash
-fly ssh console -a my-openclaw
+fly ssh console -a my-octenclaw
 ```
 
 ### Webhooks with private deployment

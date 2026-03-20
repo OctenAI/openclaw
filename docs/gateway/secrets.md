@@ -9,7 +9,7 @@ title: "Secrets Management"
 
 # Secrets management
 
-OpenClaw supports additive SecretRefs so supported credentials do not need to be stored as plaintext in configuration.
+OctenClaw supports additive SecretRefs so supported credentials do not need to be stored as plaintext in configuration.
 
 Plaintext still works. SecretRefs are opt-in per credential.
 
@@ -65,7 +65,7 @@ active-surface policy, so you can see why a credential was treated as active or 
 
 ## Onboarding reference preflight
 
-When onboarding runs in interactive mode and you choose SecretRef storage, OpenClaw runs preflight validation before saving:
+When onboarding runs in interactive mode and you choose SecretRef storage, OctenClaw runs preflight validation before saving:
 
 - Env refs: validates env var name and confirms a non-empty value is visible during onboarding.
 - Provider refs (`file` or `exec`): validates provider selection, resolves `id`, and checks resolved value type.
@@ -169,7 +169,7 @@ Define providers under `secrets.providers`:
 
 - Runs configured absolute binary path, no shell.
 - By default, `command` must point to a regular file (not a symlink).
-- Set `allowSymlinkCommand: true` to allow symlink command paths (for example Homebrew shims). OpenClaw validates the resolved target path.
+- Set `allowSymlinkCommand: true` to allow symlink command paths (for example Homebrew shims). OctenClaw validates the resolved target path.
 - Pair `allowSymlinkCommand` with `trustedDirs` for package-manager paths (for example `["/opt/homebrew"]`).
 - Supports timeout, no-output timeout, output byte limits, env allowlist, and trusted dirs.
 - Windows fail-closed note: if ACL verification is unavailable for the command path, resolution fails. For trusted paths only, set `allowInsecurePath: true` on that provider to bypass path security checks.
@@ -327,7 +327,7 @@ Activation contract:
 
 ## Degraded and recovered signals
 
-When reload-time activation fails after a healthy state, OpenClaw enters degraded secrets state.
+When reload-time activation fails after a healthy state, OctenClaw enters degraded secrets state.
 
 One-shot system event and log codes:
 
@@ -347,8 +347,8 @@ Command paths can opt into supported SecretRef resolution via gateway snapshot R
 
 There are two broad behaviors:
 
-- Strict command paths (for example `openclaw memory` remote-memory paths and `openclaw qr --remote`) read from the active snapshot and fail fast when a required SecretRef is unavailable.
-- Read-only command paths (for example `openclaw status`, `openclaw status --all`, `openclaw channels status`, `openclaw channels resolve`, and read-only doctor/config repair flows) also prefer the active snapshot, but degrade instead of aborting when a targeted SecretRef is unavailable in that command path.
+- Strict command paths (for example `octenclaw memory` remote-memory paths and `octenclaw qr --remote`) read from the active snapshot and fail fast when a required SecretRef is unavailable.
+- Read-only command paths (for example `octenclaw status`, `octenclaw status --all`, `octenclaw channels status`, `octenclaw channels resolve`, and read-only doctor/config repair flows) also prefer the active snapshot, but degrade instead of aborting when a targeted SecretRef is unavailable in that command path.
 
 Read-only behavior:
 
@@ -359,7 +359,7 @@ Read-only behavior:
 
 Other notes:
 
-- Snapshot refresh after backend secret rotation is handled by `openclaw secrets reload`.
+- Snapshot refresh after backend secret rotation is handled by `octenclaw secrets reload`.
 - Gateway RPC method used by these command paths: `secrets.resolve`.
 
 ## Audit and configure workflow
@@ -367,9 +367,9 @@ Other notes:
 Default operator flow:
 
 ```bash
-openclaw secrets audit --check
-openclaw secrets configure
-openclaw secrets audit --check
+octenclaw secrets audit --check
+octenclaw secrets configure
+octenclaw secrets audit --check
 ```
 
 ### `secrets audit`
@@ -399,9 +399,9 @@ Interactive helper that:
 
 Helpful modes:
 
-- `openclaw secrets configure --providers-only`
-- `openclaw secrets configure --skip-provider-setup`
-- `openclaw secrets configure --agent <id>`
+- `octenclaw secrets configure --providers-only`
+- `octenclaw secrets configure --skip-provider-setup`
+- `octenclaw secrets configure --agent <id>`
 
 `configure` apply defaults:
 
@@ -414,8 +414,8 @@ Helpful modes:
 Apply a saved plan:
 
 ```bash
-openclaw secrets apply --from /tmp/openclaw-secrets-plan.json
-openclaw secrets apply --from /tmp/openclaw-secrets-plan.json --dry-run
+octenclaw secrets apply --from /tmp/openclaw-secrets-plan.json
+octenclaw secrets apply --from /tmp/openclaw-secrets-plan.json --dry-run
 ```
 
 For strict target/path contract details and exact rejection rules, see:
@@ -424,7 +424,7 @@ For strict target/path contract details and exact rejection rules, see:
 
 ## One-way safety policy
 
-OpenClaw intentionally does not write rollback backups containing historical plaintext secret values.
+OctenClaw intentionally does not write rollback backups containing historical plaintext secret values.
 
 Safety model:
 

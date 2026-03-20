@@ -1,14 +1,14 @@
 ---
-summary: "Move (migrate) a OpenClaw install from one machine to another"
+summary: "Move (migrate) a OctenClaw install from one machine to another"
 read_when:
-  - You are moving OpenClaw to a new laptop/server
+  - You are moving OctenClaw to a new laptop/server
   - You want to preserve sessions, auth, and channel logins (WhatsApp, etc.)
 title: "Migration Guide"
 ---
 
-# Migrating OpenClaw to a new machine
+# Migrating OctenClaw to a new machine
 
-This guide migrates a OpenClaw Gateway from one machine to another **without redoing onboarding**.
+This guide migrates a OctenClaw Gateway from one machine to another **without redoing onboarding**.
 
 The migration is simple conceptually:
 
@@ -33,7 +33,7 @@ But it may be different if you use:
 If you’re not sure, run on the **old** machine:
 
 ```bash
-openclaw status
+octenclaw status
 ```
 
 Look for mentions of `OPENCLAW_STATE_DIR` / profile in the output. If you run multiple gateways, repeat for each profile.
@@ -72,7 +72,7 @@ Those live under `$OPENCLAW_STATE_DIR`.
 On the **old** machine, stop the gateway first so files aren’t changing mid-copy:
 
 ```bash
-openclaw gateway stop
+octenclaw gateway stop
 ```
 
 (Optional but recommended) archive the state dir and workspace:
@@ -80,14 +80,14 @@ openclaw gateway stop
 ```bash
 # Adjust paths if you use a profile or custom locations
 cd ~
-tar -czf openclaw-state.tgz .openclaw
+tar -czf octenclaw-state.tgz .openclaw
 
-tar -czf openclaw-workspace.tgz .openclaw/workspace
+tar -czf octenclaw-workspace.tgz .openclaw/workspace
 ```
 
 If you have multiple profiles/state dirs (e.g. `~/.openclaw-main`, `~/.openclaw-work`), archive each.
 
-### Step 1 — Install OpenClaw on the new machine
+### Step 1 — Install OctenClaw on the new machine
 
 On the **new** machine, install the CLI (and Node if needed):
 
@@ -118,7 +118,7 @@ After copying, ensure:
 On the **new** machine:
 
 ```bash
-openclaw doctor
+octenclaw doctor
 ```
 
 Doctor is the “safe boring” command. It repairs services, applies config migrations, and warns about mismatches.
@@ -126,8 +126,8 @@ Doctor is the “safe boring” command. It repairs services, applies config mig
 Then:
 
 ```bash
-openclaw gateway restart
-openclaw status
+octenclaw gateway restart
+octenclaw status
 ```
 
 ## Common footguns (and how to avoid them)
@@ -143,7 +143,7 @@ If you ran the old gateway with a profile (or `OPENCLAW_STATE_DIR`), and the new
 Fix: run the gateway/service using the **same** profile/state dir you migrated, then rerun:
 
 ```bash
-openclaw doctor
+octenclaw doctor
 ```
 
 ### Footgun: copying only `openclaw.json`
@@ -180,7 +180,7 @@ If you’re in remote mode, migrate the **gateway host**.
 
 On the new machine, confirm:
 
-- `openclaw status` shows the gateway running
+- `octenclaw status` shows the gateway running
 - Your channels are still connected (e.g. WhatsApp doesn’t require re-pair)
 - The dashboard opens and shows existing sessions
 - Your workspace files (memory, configs) are present
@@ -189,4 +189,4 @@ On the new machine, confirm:
 
 - [Doctor](/gateway/doctor)
 - [Gateway troubleshooting](/gateway/troubleshooting)
-- [Where does OpenClaw store its data?](/help/faq#where-does-openclaw-store-its-data)
+- [Where does OctenClaw store its data?](/help/faq#where-does-octenclaw-store-its-data)
