@@ -384,7 +384,7 @@ describe("gateway hot reload", () => {
     );
   }
 
-  async function writeWebSearchGeminiRefConfig() {
+  async function writeWebSearchOctenRefConfig() {
     const configPath = process.env.OPENCLAW_CONFIG_PATH;
     if (!configPath) {
       throw new Error("OPENCLAW_CONFIG_PATH is not set");
@@ -397,9 +397,9 @@ describe("gateway hot reload", () => {
             web: {
               search: {
                 enabled: true,
-                provider: "gemini",
-                gemini: {
-                  apiKey: { source: "env", provider: "default", id: "GEMINI_API_KEY" },
+                provider: "octen",
+                octen: {
+                  apiKey: { source: "env", provider: "default", id: "OCTEN_API_KEY" },
                 },
               },
             },
@@ -652,18 +652,18 @@ describe("gateway hot reload", () => {
   });
 
   it("emits one-shot degraded and recovered system events for web search secret reload transitions", async () => {
-    await writeWebSearchGeminiRefConfig();
-    process.env.GEMINI_API_KEY = "gemini-startup-key"; // pragma: allowlist secret
+    await writeWebSearchOctenRefConfig();
+    process.env.OCTEN_API_KEY = "octen-startup-key"; // pragma: allowlist secret
 
     await withGatewayServer(async () => {
       const onHotReload = hoisted.getOnHotReload();
       expect(onHotReload).toBeTypeOf("function");
       const sessionKey = resolveMainSessionKeyFromConfig();
       const plan = {
-        changedPaths: ["tools.web.search.gemini.apiKey"],
+        changedPaths: ["tools.web.search.octen.apiKey"],
         restartGateway: false,
         restartReasons: [],
-        hotReasons: ["tools.web.search.gemini.apiKey"],
+        hotReasons: ["tools.web.search.octen.apiKey"],
         reloadHooks: false,
         restartGmailWatcher: false,
         restartBrowserControl: false,
@@ -677,23 +677,23 @@ describe("gateway hot reload", () => {
           web: {
             search: {
               enabled: true,
-              provider: "gemini",
-              gemini: {
-                apiKey: { source: "env", provider: "default", id: "GEMINI_API_KEY" },
+              provider: "octen",
+              octen: {
+                apiKey: { source: "env", provider: "default", id: "OCTEN_API_KEY" },
               },
             },
           },
         },
       };
 
-      delete process.env.GEMINI_API_KEY;
+      delete process.env.OCTEN_API_KEY;
       await expectOneShotSecretReloadEvents({
         applyReload: () => onHotReload?.(plan, nextConfig),
         sessionKey,
         expectedError: "[WEB_SEARCH_KEY_UNRESOLVED_NO_FALLBACK]",
       });
 
-      process.env.GEMINI_API_KEY = "gemini-recovered-key"; // pragma: allowlist secret
+      process.env.OCTEN_API_KEY = "octen-recovered-key"; // pragma: allowlist secret
       await expectSecretReloadRecovered({
         applyReload: () => onHotReload?.(plan, nextConfig),
         sessionKey,

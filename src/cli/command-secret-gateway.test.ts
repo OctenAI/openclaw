@@ -218,16 +218,16 @@ describe("resolveCommandSecretRefsViaGateway", () => {
   });
 
   it("falls back to local resolution for web search SecretRefs when gateway is unavailable", async () => {
-    const envKey = "WEB_SEARCH_GEMINI_API_KEY_LOCAL_FALLBACK";
-    await withEnvValue(envKey, "gemini-local-fallback-key", async () => {
+    const envKey = "WEB_SEARCH_OCTEN_API_KEY_LOCAL_FALLBACK";
+    await withEnvValue(envKey, "octen-local-fallback-key", async () => {
       callGateway.mockRejectedValueOnce(new Error("gateway closed"));
       const result = await resolveCommandSecretRefsViaGateway({
         config: {
           tools: {
             web: {
               search: {
-                provider: "gemini",
-                gemini: {
+                provider: "octen",
+                octen: {
                   apiKey: { source: "env", provider: "default", id: envKey },
                 },
               },
@@ -235,13 +235,13 @@ describe("resolveCommandSecretRefsViaGateway", () => {
           },
         } as OpenClawConfig,
         commandName: "agent",
-        targetIds: new Set(["tools.web.search.gemini.apiKey"]),
+        targetIds: new Set(["tools.web.search.octen.apiKey"]),
       });
 
-      expect(result.resolvedConfig.tools?.web?.search?.gemini?.apiKey).toBe(
-        "gemini-local-fallback-key",
+      expect(result.resolvedConfig.tools?.web?.search?.octen?.apiKey).toBe(
+        "octen-local-fallback-key",
       );
-      expect(result.targetStatesByPath["tools.web.search.gemini.apiKey"]).toBe("resolved_local");
+      expect(result.targetStatesByPath["tools.web.search.octen.apiKey"]).toBe("resolved_local");
       expectGatewayUnavailableLocalFallbackDiagnostics(result);
     });
   });
@@ -282,7 +282,7 @@ describe("resolveCommandSecretRefsViaGateway", () => {
           web: {
             search: {
               enabled: false,
-              gemini: {
+              octen: {
                 apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_DISABLED_KEY" },
               },
             },
@@ -290,14 +290,14 @@ describe("resolveCommandSecretRefsViaGateway", () => {
         },
       } as OpenClawConfig,
       commandName: "agent",
-      targetIds: new Set(["tools.web.search.gemini.apiKey"]),
+      targetIds: new Set(["tools.web.search.octen.apiKey"]),
     });
 
     expect(result.hadUnresolvedTargets).toBe(false);
-    expect(result.targetStatesByPath["tools.web.search.gemini.apiKey"]).toBe("inactive_surface");
+    expect(result.targetStatesByPath["tools.web.search.octen.apiKey"]).toBe("inactive_surface");
     expect(
       result.diagnostics.some((entry) =>
-        entry.includes("tools.web.search.gemini.apiKey: tools.web.search is disabled."),
+        entry.includes("tools.web.search.octen.apiKey: tools.web.search is disabled."),
       ),
     ).toBe(true);
   });

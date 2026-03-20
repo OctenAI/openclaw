@@ -419,6 +419,89 @@ export function buildTogetherProvider(): ProviderConfig {
   };
 }
 
+export const OCTEN_BASE_URL = "https://api.octen.ai/v1";
+const OCTEN_DEFAULT_MODEL_ID = "anthropic/claude-sonnet-4.6";
+const OCTEN_DEFAULT_CONTEXT_WINDOW = 200000;
+const OCTEN_DEFAULT_MAX_TOKENS = 8192;
+const OCTEN_DEFAULT_COST = {
+  input: 0,
+  output: 0,
+  cacheRead: 0,
+  cacheWrite: 0,
+};
+
+export function buildOctenProvider(): ProviderConfig {
+  return {
+    baseUrl: OCTEN_BASE_URL,
+    api: "openai-completions",
+    models: [
+      {
+        id: OCTEN_DEFAULT_MODEL_ID,
+        name: "Claude Sonnet 4.6",
+        reasoning: false,
+        input: ["text", "image"],
+        cost: OCTEN_DEFAULT_COST,
+        contextWindow: OCTEN_DEFAULT_CONTEXT_WINDOW,
+        maxTokens: OCTEN_DEFAULT_MAX_TOKENS,
+      },
+      {
+        id: "anthropic/claude-opus-4.6",
+        name: "Claude Opus 4.6",
+        reasoning: false,
+        input: ["text", "image"],
+        cost: OCTEN_DEFAULT_COST,
+        contextWindow: OCTEN_DEFAULT_CONTEXT_WINDOW,
+        maxTokens: OCTEN_DEFAULT_MAX_TOKENS,
+      },
+      {
+        id: "google/gemini-3-flash-preview",
+        name: "Gemini 3 Flash Preview",
+        reasoning: false,
+        input: ["text", "image"],
+        cost: OCTEN_DEFAULT_COST,
+        contextWindow: 1_000_000,
+        maxTokens: 65_536,
+      },
+      {
+        id: "google/gemini-3.1-pro-preview",
+        name: "Gemini 3.1 Pro Preview",
+        reasoning: false,
+        input: ["text", "image"],
+        cost: OCTEN_DEFAULT_COST,
+        contextWindow: 1_000_000,
+        maxTokens: 65_536,
+      },
+      {
+        id: "google/gemini-3.1-flash-lite-preview",
+        name: "Gemini 3.1 Flash Lite Preview",
+        reasoning: false,
+        input: ["text"],
+        cost: OCTEN_DEFAULT_COST,
+        contextWindow: 1_000_000,
+        maxTokens: 65_536,
+      },
+      {
+        id: "openai/gpt-5.4",
+        name: "GPT-5.4",
+        reasoning: false,
+        input: ["text", "image"],
+        cost: OCTEN_DEFAULT_COST,
+        contextWindow: 128_000,
+        maxTokens: 16_384,
+      },
+      {
+        id: "openai/gpt-oss-120b",
+        name: "GPT-OSS 120B",
+        reasoning: false,
+        input: ["text"],
+        cost: OCTEN_DEFAULT_COST,
+        contextWindow: 128_000,
+        maxTokens: 16_384,
+      },
+    ],
+  };
+}
+
 export function buildOpenrouterProvider(): ProviderConfig {
   return {
     baseUrl: OPENROUTER_BASE_URL,

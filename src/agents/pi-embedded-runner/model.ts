@@ -4,6 +4,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 import type { ModelDefinitionConfig } from "../../config/types.js";
 import { resolveOpenClawAgentDir } from "../agent-paths.js";
 import { DEFAULT_CONTEXT_TOKENS } from "../defaults.js";
+import { OCTEN_BASE_URL } from "../models-config.providers.static.js";
 import { buildModelAliasLines } from "../model-alias-lines.js";
 import { isSecretRefHeaderValueMarker } from "../model-auth-markers.js";
 import { resolveForwardCompatModel } from "../model-forward-compat.js";
@@ -220,6 +221,25 @@ export function resolveModelWithRegistry(params: {
         cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
         contextWindow: DEFAULT_CONTEXT_TOKENS,
         // Align with OPENROUTER_DEFAULT_MAX_TOKENS in models-config.providers.ts
+        maxTokens: 8192,
+      } as Model<Api>,
+    });
+  }
+
+  // Octen is a pass-through proxy (same as OpenRouter).
+  if (normalizedProvider === "octen") {
+    return normalizeResolvedModel({
+      provider,
+      model: {
+        id: modelId,
+        name: modelId,
+        api: "openai-completions",
+        provider,
+        baseUrl: OCTEN_BASE_URL,
+        reasoning: false,
+        input: ["text"],
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: DEFAULT_CONTEXT_TOKENS,
         maxTokens: 8192,
       } as Model<Api>,
     });

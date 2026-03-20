@@ -32,6 +32,7 @@ import {
 } from "./openai-stream-wrappers.js";
 import {
   createKilocodeWrapper,
+  createOctenWrapper,
   createOpenRouterSystemCacheWrapper,
   createOpenRouterWrapper,
   isProxyReasoningUnsupported,
@@ -409,6 +410,14 @@ export function applyExtraParamsToAgent(
     const skipReasoningInjection = modelId === "auto" || isProxyReasoningUnsupported(modelId);
     const openRouterThinkingLevel = skipReasoningInjection ? undefined : thinkingLevel;
     agent.streamFn = createOpenRouterWrapper(agent.streamFn, openRouterThinkingLevel);
+    agent.streamFn = createOpenRouterSystemCacheWrapper(agent.streamFn);
+  }
+
+  if (provider === "octen") {
+    log.debug(`applying Octen app attribution headers for ${provider}/${modelId}`);
+    const skipReasoningInjection = isProxyReasoningUnsupported(modelId);
+    const octenThinkingLevel = skipReasoningInjection ? undefined : thinkingLevel;
+    agent.streamFn = createOctenWrapper(agent.streamFn, octenThinkingLevel);
     agent.streamFn = createOpenRouterSystemCacheWrapper(agent.streamFn);
   }
 

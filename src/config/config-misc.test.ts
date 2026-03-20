@@ -94,14 +94,13 @@ describe("plugins.entries.*.hooks.allowPromptInjection", () => {
 });
 
 describe("web search provider config", () => {
-  it("accepts kimi provider and config", () => {
+  it("accepts octen provider and config", () => {
     const res = validateConfigObject(
       buildWebSearchProviderConfig({
-        provider: "kimi",
+        provider: "octen",
         providerConfig: {
-          apiKey: "test-key",
-          baseUrl: "https://api.moonshot.ai/v1",
-          model: "moonshot-v1-128k",
+          apiKey: "test-key", // pragma: allowlist secret
+          baseUrl: "https://api.octen.ai",
         },
       }),
     );

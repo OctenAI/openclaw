@@ -6,6 +6,10 @@ const OPENROUTER_APP_HEADERS: Record<string, string> = {
   "HTTP-Referer": "https://openclaw.ai",
   "X-Title": "OpenClaw",
 };
+const OCTEN_APP_HEADERS: Record<string, string> = {
+  "HTTP-Referer": "https://octen.ai",
+  "X-Title": "OpenClaw",
+};
 const KILOCODE_FEATURE_HEADER = "X-KILOCODE-FEATURE";
 const KILOCODE_FEATURE_DEFAULT = "openclaw";
 const KILOCODE_FEATURE_ENV_VAR = "KILOCODE_FEATURE";
@@ -15,8 +19,10 @@ function resolveKilocodeAppHeaders(): Record<string, string> {
   return { [KILOCODE_FEATURE_HEADER]: feature };
 }
 
-function isOpenRouterAnthropicModel(provider: string, modelId: string): boolean {
-  return provider.toLowerCase() === "openrouter" && modelId.toLowerCase().startsWith("anthropic/");
+const PROXY_PROVIDERS_WITH_ANTHROPIC_CACHE = new Set(["openrouter", "octen"]);
+
+function isProxyAnthropicModel(provider: string, modelId: string): boolean {
+  return PROXY_PROVIDERS_WITH_ANTHROPIC_CACHE.has(provider.toLowerCase()) && modelId.toLowerCase().startsWith("anthropic/");
 }
 
 function mapThinkingLevelToOpenRouterReasoningEffort(
@@ -65,7 +71,7 @@ export function createOpenRouterSystemCacheWrapper(baseStreamFn: StreamFn | unde
     if (
       typeof model.provider !== "string" ||
       typeof model.id !== "string" ||
-      !isOpenRouterAnthropicModel(model.provider, model.id)
+      !isProxyAnthropicModel(model.provider, model.id)
     ) {
       return underlying(model, context, options);
     }
@@ -113,6 +119,30 @@ export function createOpenRouterWrapper(
       },
       onPayload: (payload) => {
         normalizeProxyReasoningPayload(payload, thinkingLevel);
+        return onPayload?.(payload, model);
+      },
+    });
+  };
+}
+
+export function createOctenWrapper(
+  baseStreamFn: StreamFn | undefined,
+  thinkingLevel?: ThinkLevel,
+): StreamFn {
+  const underlying = baseStreamFn ?? streamSimple;
+  return (model, context, options) => {
+    const onPayload = options?.onPayload;
+    return underlying(model, context, {
+      ...options,
+      headers: {
+        ...OCTEN_APP_HEADERS,
+        ...options?.headers,
+      },
+      onPayload: (payload) => {
+        normalizeProxyReasoningPayload(payload, thinkingLevel);
+        if (payload && typeof payload === "object") {
+          (payload as Record<string, unknown>).web_search = "off";
+        }
         return onPayload?.(payload, model);
       },
     });

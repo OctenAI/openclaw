@@ -10,7 +10,7 @@ import type { RuntimeEnv } from "../runtime.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 import type { SecretInputMode } from "./onboard-types.js";
 
-export type SearchProvider = "brave" | "gemini" | "grok" | "kimi" | "perplexity";
+export type SearchProvider = "octen";
 
 type SearchProviderEntry = {
   value: SearchProvider;
@@ -23,44 +23,12 @@ type SearchProviderEntry = {
 
 export const SEARCH_PROVIDER_OPTIONS: readonly SearchProviderEntry[] = [
   {
-    value: "brave",
-    label: "Brave Search",
-    hint: "Structured results · country/language/time filters",
-    envKeys: ["BRAVE_API_KEY"],
-    placeholder: "BSA...",
-    signupUrl: "https://brave.com/search/api/",
-  },
-  {
-    value: "gemini",
-    label: "Gemini (Google Search)",
-    hint: "Google Search grounding · AI-synthesized",
-    envKeys: ["GEMINI_API_KEY"],
-    placeholder: "AIza...",
-    signupUrl: "https://aistudio.google.com/apikey",
-  },
-  {
-    value: "grok",
-    label: "Grok (xAI)",
-    hint: "xAI web-grounded responses",
-    envKeys: ["XAI_API_KEY"],
-    placeholder: "xai-...",
-    signupUrl: "https://console.x.ai/",
-  },
-  {
-    value: "kimi",
-    label: "Kimi (Moonshot)",
-    hint: "Moonshot web search",
-    envKeys: ["KIMI_API_KEY", "MOONSHOT_API_KEY"],
-    placeholder: "sk-...",
-    signupUrl: "https://platform.moonshot.cn/",
-  },
-  {
-    value: "perplexity",
-    label: "Perplexity Search",
-    hint: "Structured results · domain/country/language/time filters",
-    envKeys: ["PERPLEXITY_API_KEY"],
-    placeholder: "pplx-...",
-    signupUrl: "https://www.perplexity.ai/settings/api",
+    value: "octen",
+    label: "Octen Search",
+    hint: "Octen AI-powered search",
+    envKeys: ["OCTEN_API_KEY"],
+    placeholder: "octen-...",
+    signupUrl: "https://octen.ai/",
   },
 ] as const;
 
@@ -71,16 +39,8 @@ export function hasKeyInEnv(entry: SearchProviderEntry): boolean {
 function rawKeyValue(config: OpenClawConfig, provider: SearchProvider): unknown {
   const search = config.tools?.web?.search;
   switch (provider) {
-    case "brave":
-      return search?.apiKey;
-    case "gemini":
-      return search?.gemini?.apiKey;
-    case "grok":
-      return search?.grok?.apiKey;
-    case "kimi":
-      return search?.kimi?.apiKey;
-    case "perplexity":
-      return search?.perplexity?.apiKey;
+    case "octen":
+      return search?.octen?.apiKey;
   }
 }
 
@@ -129,20 +89,8 @@ export function applySearchKey(
 ): OpenClawConfig {
   const search = { ...config.tools?.web?.search, provider, enabled: true };
   switch (provider) {
-    case "brave":
-      search.apiKey = key;
-      break;
-    case "gemini":
-      search.gemini = { ...search.gemini, apiKey: key };
-      break;
-    case "grok":
-      search.grok = { ...search.grok, apiKey: key };
-      break;
-    case "kimi":
-      search.kimi = { ...search.kimi, apiKey: key };
-      break;
-    case "perplexity":
-      search.perplexity = { ...search.perplexity, apiKey: key };
+    case "octen":
+      search.octen = { ...search.octen, apiKey: key };
       break;
   }
   return {

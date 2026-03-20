@@ -181,6 +181,9 @@ function normalizeProviderModelId(provider: string, model: string): string {
   if (provider === "openrouter" && !model.includes("/")) {
     return `openrouter/${model}`;
   }
+  if (provider === "octen" && !model.includes("/")) {
+    return `octen/${model}`;
+  }
   return model;
 }
 

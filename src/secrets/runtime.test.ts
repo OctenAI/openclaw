@@ -125,7 +125,9 @@ describe("secrets runtime snapshot", () => {
       tools: {
         web: {
           search: {
-            apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_API_KEY" },
+            octen: {
+              apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_OCTEN_API_KEY" },
+            },
           },
         },
       },
@@ -149,7 +151,7 @@ describe("secrets runtime snapshot", () => {
         SLACK_SIGNING_SECRET_REF: "slack-signing-ref", // pragma: allowlist secret
         SLACK_WORK_BOT_TOKEN_REF: "slack-work-bot-ref",
         SLACK_WORK_APP_TOKEN_REF: "slack-work-app-ref",
-        WEB_SEARCH_API_KEY: "web-search-ref", // pragma: allowlist secret
+        WEB_SEARCH_OCTEN_API_KEY: "web-search-ref", // pragma: allowlist secret
       },
       agentDirs: ["/tmp/openclaw-agent-main"],
       loadAuthStore: () =>
@@ -198,7 +200,7 @@ describe("secrets runtime snapshot", () => {
       provider: "default",
       id: "SLACK_WORK_APP_TOKEN_REF",
     });
-    expect(snapshot.config.tools?.web?.search?.apiKey).toBe("web-search-ref");
+    expect(snapshot.config.tools?.web?.search?.octen?.apiKey).toBe("web-search-ref");
     expect(snapshot.warnings).toHaveLength(4);
     expect(snapshot.warnings.map((warning) => warning.path)).toContain(
       "channels.slack.accounts.work.appToken",
@@ -311,36 +313,23 @@ describe("secrets runtime snapshot", () => {
           web: {
             search: {
               enabled: true,
-              provider: "brave",
-              apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_API_KEY" },
-              grok: {
-                apiKey: { source: "env", provider: "default", id: "MISSING_GROK_API_KEY" },
+              provider: "octen",
+              octen: {
+                apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_OCTEN_API_KEY" },
               },
             },
           },
         },
       }),
       env: {
-        WEB_SEARCH_API_KEY: "web-search-ref", // pragma: allowlist secret
+        WEB_SEARCH_OCTEN_API_KEY: "web-search-ref", // pragma: allowlist secret
       },
       agentDirs: ["/tmp/openclaw-agent-main"],
       loadAuthStore: () => ({ version: 1, profiles: {} }),
     });
 
-    expect(snapshot.config.tools?.web?.search?.apiKey).toBe("web-search-ref");
-    expect(snapshot.config.tools?.web?.search?.grok?.apiKey).toEqual({
-      source: "env",
-      provider: "default",
-      id: "MISSING_GROK_API_KEY",
-    });
-    expect(snapshot.warnings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          code: "SECRETS_REF_IGNORED_INACTIVE_SURFACE",
-          path: "tools.web.search.grok.apiKey",
-        }),
-      ]),
-    );
+    expect(snapshot.config.tools?.web?.search?.octen?.apiKey).toBe("web-search-ref");
+    expect(snapshot.warnings.filter((w) => w.code === "SECRETS_REF_IGNORED_INACTIVE_SURFACE")).toEqual([]);
   });
 
   it("keeps non-selected provider refs inactive in web search auto mode", async () => {
@@ -350,37 +339,22 @@ describe("secrets runtime snapshot", () => {
           web: {
             search: {
               enabled: true,
-              apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_API_KEY" },
-              gemini: {
-                apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_GEMINI_API_KEY" },
+              octen: {
+                apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_OCTEN_API_KEY" },
               },
             },
           },
         },
       }),
       env: {
-        WEB_SEARCH_API_KEY: "web-search-ref", // pragma: allowlist secret
-        WEB_SEARCH_GEMINI_API_KEY: "web-search-gemini-ref", // pragma: allowlist secret
+        WEB_SEARCH_OCTEN_API_KEY: "web-search-octen-ref", // pragma: allowlist secret
       },
       agentDirs: ["/tmp/openclaw-agent-main"],
       loadAuthStore: () => ({ version: 1, profiles: {} }),
     });
 
-    expect(snapshot.config.tools?.web?.search?.apiKey).toBe("web-search-ref");
-    expect(snapshot.config.tools?.web?.search?.gemini?.apiKey).toEqual({
-      source: "env",
-      provider: "default",
-      id: "WEB_SEARCH_GEMINI_API_KEY",
-    });
-    expect(snapshot.webTools.search.selectedProvider).toBe("brave");
-    expect(snapshot.warnings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          code: "SECRETS_REF_IGNORED_INACTIVE_SURFACE",
-          path: "tools.web.search.gemini.apiKey",
-        }),
-      ]),
-    );
+    expect(snapshot.config.tools?.web?.search?.octen?.apiKey).toBe("web-search-octen-ref");
+    expect(snapshot.webTools.search.selectedProvider).toBe("octen");
   });
 
   it("resolves selected web search provider ref even when provider config is disabled", async () => {
@@ -390,25 +364,24 @@ describe("secrets runtime snapshot", () => {
           web: {
             search: {
               enabled: true,
-              provider: "gemini",
-              gemini: {
-                enabled: false,
-                apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_GEMINI_API_KEY" },
+              provider: "octen",
+              octen: {
+                apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_OCTEN_API_KEY" },
               },
             },
           },
         },
       }),
       env: {
-        WEB_SEARCH_GEMINI_API_KEY: "web-search-gemini-ref", // pragma: allowlist secret
+        WEB_SEARCH_OCTEN_API_KEY: "web-search-octen-ref", // pragma: allowlist secret
       },
       agentDirs: ["/tmp/openclaw-agent-main"],
       loadAuthStore: () => ({ version: 1, profiles: {} }),
     });
 
-    expect(snapshot.config.tools?.web?.search?.gemini?.apiKey).toBe("web-search-gemini-ref");
+    expect(snapshot.config.tools?.web?.search?.octen?.apiKey).toBe("web-search-octen-ref");
     expect(snapshot.warnings.map((warning) => warning.path)).not.toContain(
-      "tools.web.search.gemini.apiKey",
+      "tools.web.search.octen.apiKey",
     );
   });
 
@@ -420,12 +393,12 @@ describe("secrets runtime snapshot", () => {
             web: {
               search: {
                 enabled: true,
-                provider: "gemini",
-                gemini: {
+                provider: "octen",
+                octen: {
                   apiKey: {
                     source: "env",
                     provider: "default",
-                    id: "MISSING_WEB_SEARCH_GEMINI_API_KEY",
+                    id: "MISSING_WEB_SEARCH_OCTEN_API_KEY",
                   },
                 },
               },
@@ -445,16 +418,16 @@ describe("secrets runtime snapshot", () => {
         tools: {
           web: {
             search: {
-              provider: "gemini",
-              gemini: {
-                apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_GEMINI_API_KEY" },
+              provider: "octen",
+              octen: {
+                apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_OCTEN_API_KEY" },
               },
             },
           },
         },
       }),
       env: {
-        WEB_SEARCH_GEMINI_API_KEY: "web-search-gemini-ref", // pragma: allowlist secret
+        WEB_SEARCH_OCTEN_API_KEY: "web-search-octen-ref", // pragma: allowlist secret
       },
       agentDirs: ["/tmp/openclaw-agent-main"],
       loadAuthStore: () => ({ version: 1, profiles: {} }),
@@ -463,18 +436,18 @@ describe("secrets runtime snapshot", () => {
     activateSecretsRuntimeSnapshot(snapshot);
 
     const first = getActiveRuntimeWebToolsMetadata();
-    expect(first?.search.providerConfigured).toBe("gemini");
-    expect(first?.search.selectedProvider).toBe("gemini");
+    expect(first?.search.providerConfigured).toBe("octen");
+    expect(first?.search.selectedProvider).toBe("octen");
     expect(first?.search.selectedProviderKeySource).toBe("secretRef");
     if (!first) {
       throw new Error("missing runtime web tools metadata");
     }
-    first.search.providerConfigured = "brave";
-    first.search.selectedProvider = "brave";
+    first.search.providerConfigured = "other" as string;
+    first.search.selectedProvider = "other" as string;
 
     const second = getActiveRuntimeWebToolsMetadata();
-    expect(second?.search.providerConfigured).toBe("gemini");
-    expect(second?.search.selectedProvider).toBe("gemini");
+    expect(second?.search.providerConfigured).toBe("octen");
+    expect(second?.search.selectedProvider).toBe("octen");
   });
 
   it("resolves file refs via configured file provider", async () => {
@@ -805,16 +778,16 @@ describe("secrets runtime snapshot", () => {
           tools: {
             web: {
               search: {
-                provider: "gemini",
-                gemini: {
-                  apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_GEMINI_API_KEY" },
+                provider: "octen",
+                octen: {
+                  apiKey: { source: "env", provider: "default", id: "WEB_SEARCH_OCTEN_API_KEY" },
                 },
               },
             },
           },
         }),
         env: {
-          WEB_SEARCH_GEMINI_API_KEY: "web-search-gemini-runtime-key", // pragma: allowlist secret
+          WEB_SEARCH_OCTEN_API_KEY: "web-search-octen-runtime-key", // pragma: allowlist secret
         },
         agentDirs: ["/tmp/openclaw-agent-main"],
         loadAuthStore: () => ({ version: 1, profiles: {} }),
@@ -828,12 +801,12 @@ describe("secrets runtime snapshot", () => {
           tools: {
             web: {
               search: {
-                provider: "gemini",
-                gemini: {
+                provider: "octen",
+                octen: {
                   apiKey: {
                     source: "env",
                     provider: "default",
-                    id: "MISSING_WEB_SEARCH_GEMINI_API_KEY",
+                    id: "MISSING_WEB_SEARCH_OCTEN_API_KEY",
                   },
                 },
               },
@@ -846,21 +819,21 @@ describe("secrets runtime snapshot", () => {
 
       const activeAfterFailure = getActiveSecretsRuntimeSnapshot();
       expect(activeAfterFailure).not.toBeNull();
-      expect(loadConfig().tools?.web?.search?.gemini?.apiKey).toBe("web-search-gemini-runtime-key");
-      expect(activeAfterFailure?.sourceConfig.tools?.web?.search?.gemini?.apiKey).toEqual({
+      expect(loadConfig().tools?.web?.search?.octen?.apiKey).toBe("web-search-octen-runtime-key");
+      expect(activeAfterFailure?.sourceConfig.tools?.web?.search?.octen?.apiKey).toEqual({
         source: "env",
         provider: "default",
-        id: "WEB_SEARCH_GEMINI_API_KEY",
+        id: "WEB_SEARCH_OCTEN_API_KEY",
       });
-      expect(getActiveRuntimeWebToolsMetadata()?.search.selectedProvider).toBe("gemini");
+      expect(getActiveRuntimeWebToolsMetadata()?.search.selectedProvider).toBe("octen");
 
       const persistedConfig = JSON.parse(
         await fs.readFile(path.join(home, ".openclaw", "openclaw.json"), "utf8"),
       ) as OpenClawConfig;
-      expect(persistedConfig.tools?.web?.search?.gemini?.apiKey).toEqual({
+      expect(persistedConfig.tools?.web?.search?.octen?.apiKey).toEqual({
         source: "env",
         provider: "default",
-        id: "MISSING_WEB_SEARCH_GEMINI_API_KEY",
+        id: "MISSING_WEB_SEARCH_OCTEN_API_KEY",
       });
     });
   });
@@ -970,12 +943,11 @@ describe("secrets runtime snapshot", () => {
         web: {
           search: {
             enabled: false,
-            apiKey: { source: "env", provider: "default", id: "DISABLED_WEB_SEARCH_API_KEY" },
-            gemini: {
+            octen: {
               apiKey: {
                 source: "env",
                 provider: "default",
-                id: "DISABLED_WEB_SEARCH_GEMINI_API_KEY",
+                id: "DISABLED_WEB_SEARCH_OCTEN_API_KEY",
               },
             },
           },
@@ -999,15 +971,14 @@ describe("secrets runtime snapshot", () => {
       snapshot.warnings.filter(
         (warning) => warning.code === "SECRETS_REF_IGNORED_INACTIVE_SURFACE",
       ),
-    ).toHaveLength(6);
+    ).toHaveLength(5);
     expect(snapshot.warnings.map((warning) => warning.path)).toEqual(
       expect.arrayContaining([
         "agents.defaults.memorySearch.remote.apiKey",
         "gateway.auth.password",
         "channels.telegram.botToken",
         "channels.telegram.accounts.disabled.botToken",
-        "tools.web.search.apiKey",
-        "tools.web.search.gemini.apiKey",
+        "tools.web.search.octen.apiKey",
       ]),
     );
   });

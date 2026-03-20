@@ -31,6 +31,7 @@ import {
   buildModelStudioProvider,
   buildMoonshotProvider,
   buildNvidiaProvider,
+  buildOctenProvider,
   buildOpenAICodexProvider,
   buildOpenrouterProvider,
   buildQianfanProvider,
@@ -658,6 +659,7 @@ function mergeImplicitProviderSet(
 }
 
 const SIMPLE_IMPLICIT_PROVIDER_LOADERS: ImplicitProviderLoader[] = [
+  withApiKey("octen", async ({ apiKey }) => ({ ...buildOctenProvider(), apiKey })),
   withApiKey("minimax", async ({ apiKey }) => ({ ...buildMinimaxProvider(), apiKey })),
   withApiKey("moonshot", async ({ apiKey, explicitProvider }) => {
     const explicitBaseUrl = explicitProvider?.baseUrl;

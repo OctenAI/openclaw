@@ -24,7 +24,7 @@ function createPrompter(params: { selectValue?: string; textValue?: string }): {
       notes.push({ title, message });
     }),
     select: vi.fn(
-      async () => params.selectValue ?? "perplexity",
+      async () => params.selectValue ?? "octen",
     ) as unknown as WizardPrompter["select"],
     multiselect: vi.fn(async () => []) as unknown as WizardPrompter["multiselect"],
     text: vi.fn(async () => params.textValue ?? ""),
@@ -34,38 +34,38 @@ function createPrompter(params: { selectValue?: string; textValue?: string }): {
   return { prompter, notes };
 }
 
-function createPerplexityConfig(apiKey: string, enabled?: boolean): OpenClawConfig {
+function createOctenConfig(apiKey: string, enabled?: boolean): OpenClawConfig {
   return {
     tools: {
       web: {
         search: {
-          provider: "perplexity",
+          provider: "octen",
           ...(enabled === undefined ? {} : { enabled }),
-          perplexity: { apiKey },
+          octen: { apiKey },
         },
       },
     },
   };
 }
 
-async function runBlankPerplexityKeyEntry(
+async function runBlankOctenKeyEntry(
   apiKey: string,
   enabled?: boolean,
 ): Promise<OpenClawConfig> {
-  const cfg = createPerplexityConfig(apiKey, enabled);
+  const cfg = createOctenConfig(apiKey, enabled);
   const { prompter } = createPrompter({
-    selectValue: "perplexity",
+    selectValue: "octen",
     textValue: "",
   });
   return setupSearch(cfg, runtime, prompter);
 }
 
-async function runQuickstartPerplexitySetup(
+async function runQuickstartOctenSetup(
   apiKey: string,
   enabled?: boolean,
 ): Promise<{ result: OpenClawConfig; prompter: WizardPrompter }> {
-  const cfg = createPerplexityConfig(apiKey, enabled);
-  const { prompter } = createPrompter({ selectValue: "perplexity" });
+  const cfg = createOctenConfig(apiKey, enabled);
+  const { prompter } = createPrompter({ selectValue: "octen" });
   const result = await setupSearch(cfg, runtime, prompter, {
     quickstartDefaults: true,
   });
@@ -80,195 +80,132 @@ describe("setupSearch", () => {
     expect(result).toBe(cfg);
   });
 
-  it("sets provider and key for perplexity", async () => {
+  it("sets provider and key for octen", async () => {
     const cfg: OpenClawConfig = {};
     const { prompter } = createPrompter({
-      selectValue: "perplexity",
-      textValue: "pplx-test-key",
+      selectValue: "octen",
+      textValue: "octen-test-key", // pragma: allowlist secret
     });
     const result = await setupSearch(cfg, runtime, prompter);
-    expect(result.tools?.web?.search?.provider).toBe("perplexity");
-    expect(result.tools?.web?.search?.perplexity?.apiKey).toBe("pplx-test-key");
+    expect(result.tools?.web?.search?.provider).toBe("octen");
+    expect(result.tools?.web?.search?.octen?.apiKey).toBe("octen-test-key");
     expect(result.tools?.web?.search?.enabled).toBe(true);
-  });
-
-  it("sets provider and key for brave", async () => {
-    const cfg: OpenClawConfig = {};
-    const { prompter } = createPrompter({
-      selectValue: "brave",
-      textValue: "BSA-test-key",
-    });
-    const result = await setupSearch(cfg, runtime, prompter);
-    expect(result.tools?.web?.search?.provider).toBe("brave");
-    expect(result.tools?.web?.search?.enabled).toBe(true);
-    expect(result.tools?.web?.search?.apiKey).toBe("BSA-test-key");
-  });
-
-  it("sets provider and key for gemini", async () => {
-    const cfg: OpenClawConfig = {};
-    const { prompter } = createPrompter({
-      selectValue: "gemini",
-      textValue: "AIza-test",
-    });
-    const result = await setupSearch(cfg, runtime, prompter);
-    expect(result.tools?.web?.search?.provider).toBe("gemini");
-    expect(result.tools?.web?.search?.enabled).toBe(true);
-    expect(result.tools?.web?.search?.gemini?.apiKey).toBe("AIza-test");
-  });
-
-  it("sets provider and key for grok", async () => {
-    const cfg: OpenClawConfig = {};
-    const { prompter } = createPrompter({
-      selectValue: "grok",
-      textValue: "xai-test",
-    });
-    const result = await setupSearch(cfg, runtime, prompter);
-    expect(result.tools?.web?.search?.provider).toBe("grok");
-    expect(result.tools?.web?.search?.enabled).toBe(true);
-    expect(result.tools?.web?.search?.grok?.apiKey).toBe("xai-test");
-  });
-
-  it("sets provider and key for kimi", async () => {
-    const cfg: OpenClawConfig = {};
-    const { prompter } = createPrompter({
-      selectValue: "kimi",
-      textValue: "sk-moonshot",
-    });
-    const result = await setupSearch(cfg, runtime, prompter);
-    expect(result.tools?.web?.search?.provider).toBe("kimi");
-    expect(result.tools?.web?.search?.enabled).toBe(true);
-    expect(result.tools?.web?.search?.kimi?.apiKey).toBe("sk-moonshot");
   });
 
   it("shows missing-key note when no key is provided and no env var", async () => {
-    const original = process.env.BRAVE_API_KEY;
-    delete process.env.BRAVE_API_KEY;
+    const original = process.env.OCTEN_API_KEY;
+    delete process.env.OCTEN_API_KEY;
     try {
       const cfg: OpenClawConfig = {};
       const { prompter, notes } = createPrompter({
-        selectValue: "brave",
+        selectValue: "octen",
         textValue: "",
       });
       const result = await setupSearch(cfg, runtime, prompter);
-      expect(result.tools?.web?.search?.provider).toBe("brave");
+      expect(result.tools?.web?.search?.provider).toBe("octen");
       expect(result.tools?.web?.search?.enabled).toBeUndefined();
       const missingNote = notes.find((n) => n.message.includes("No API key stored"));
       expect(missingNote).toBeDefined();
     } finally {
       if (original === undefined) {
-        delete process.env.BRAVE_API_KEY;
+        delete process.env.OCTEN_API_KEY;
       } else {
-        process.env.BRAVE_API_KEY = original;
+        process.env.OCTEN_API_KEY = original;
       }
     }
   });
 
   it("keeps existing key when user leaves input blank", async () => {
-    const result = await runBlankPerplexityKeyEntry(
+    const result = await runBlankOctenKeyEntry(
       "existing-key", // pragma: allowlist secret
     );
-    expect(result.tools?.web?.search?.perplexity?.apiKey).toBe("existing-key");
+    expect(result.tools?.web?.search?.octen?.apiKey).toBe("existing-key");
     expect(result.tools?.web?.search?.enabled).toBe(true);
   });
 
   it("advanced preserves enabled:false when keeping existing key", async () => {
-    const result = await runBlankPerplexityKeyEntry(
+    const result = await runBlankOctenKeyEntry(
       "existing-key", // pragma: allowlist secret
       false,
     );
-    expect(result.tools?.web?.search?.perplexity?.apiKey).toBe("existing-key");
+    expect(result.tools?.web?.search?.octen?.apiKey).toBe("existing-key");
     expect(result.tools?.web?.search?.enabled).toBe(false);
   });
 
   it("quickstart skips key prompt when config key exists", async () => {
-    const { result, prompter } = await runQuickstartPerplexitySetup(
-      "stored-pplx-key", // pragma: allowlist secret
+    const { result, prompter } = await runQuickstartOctenSetup(
+      "stored-octen-key", // pragma: allowlist secret
     );
-    expect(result.tools?.web?.search?.provider).toBe("perplexity");
-    expect(result.tools?.web?.search?.perplexity?.apiKey).toBe("stored-pplx-key");
+    expect(result.tools?.web?.search?.provider).toBe("octen");
+    expect(result.tools?.web?.search?.octen?.apiKey).toBe("stored-octen-key");
     expect(result.tools?.web?.search?.enabled).toBe(true);
     expect(prompter.text).not.toHaveBeenCalled();
   });
 
   it("quickstart preserves enabled:false when search was intentionally disabled", async () => {
-    const { result, prompter } = await runQuickstartPerplexitySetup(
-      "stored-pplx-key", // pragma: allowlist secret
+    const { result, prompter } = await runQuickstartOctenSetup(
+      "stored-octen-key", // pragma: allowlist secret
       false,
     );
-    expect(result.tools?.web?.search?.provider).toBe("perplexity");
-    expect(result.tools?.web?.search?.perplexity?.apiKey).toBe("stored-pplx-key");
+    expect(result.tools?.web?.search?.provider).toBe("octen");
+    expect(result.tools?.web?.search?.octen?.apiKey).toBe("stored-octen-key");
     expect(result.tools?.web?.search?.enabled).toBe(false);
     expect(prompter.text).not.toHaveBeenCalled();
   });
 
   it("quickstart falls through to key prompt when no key and no env var", async () => {
-    const original = process.env.XAI_API_KEY;
-    delete process.env.XAI_API_KEY;
+    const original = process.env.OCTEN_API_KEY;
+    delete process.env.OCTEN_API_KEY;
     try {
       const cfg: OpenClawConfig = {};
-      const { prompter } = createPrompter({ selectValue: "grok", textValue: "" });
+      const { prompter } = createPrompter({ selectValue: "octen", textValue: "" });
       const result = await setupSearch(cfg, runtime, prompter, {
         quickstartDefaults: true,
       });
       expect(prompter.text).toHaveBeenCalled();
-      expect(result.tools?.web?.search?.provider).toBe("grok");
+      expect(result.tools?.web?.search?.provider).toBe("octen");
       expect(result.tools?.web?.search?.enabled).toBeUndefined();
     } finally {
       if (original === undefined) {
-        delete process.env.XAI_API_KEY;
+        delete process.env.OCTEN_API_KEY;
       } else {
-        process.env.XAI_API_KEY = original;
+        process.env.OCTEN_API_KEY = original;
       }
     }
   });
 
   it("quickstart skips key prompt when env var is available", async () => {
-    const orig = process.env.BRAVE_API_KEY;
-    process.env.BRAVE_API_KEY = "env-brave-key"; // pragma: allowlist secret
+    const orig = process.env.OCTEN_API_KEY;
+    process.env.OCTEN_API_KEY = "env-octen-key"; // pragma: allowlist secret
     try {
       const cfg: OpenClawConfig = {};
-      const { prompter } = createPrompter({ selectValue: "brave" });
+      const { prompter } = createPrompter({ selectValue: "octen" });
       const result = await setupSearch(cfg, runtime, prompter, {
         quickstartDefaults: true,
       });
-      expect(result.tools?.web?.search?.provider).toBe("brave");
+      expect(result.tools?.web?.search?.provider).toBe("octen");
       expect(result.tools?.web?.search?.enabled).toBe(true);
       expect(prompter.text).not.toHaveBeenCalled();
     } finally {
       if (orig === undefined) {
-        delete process.env.BRAVE_API_KEY;
+        delete process.env.OCTEN_API_KEY;
       } else {
-        process.env.BRAVE_API_KEY = orig;
+        process.env.OCTEN_API_KEY = orig;
       }
     }
   });
 
-  it("stores env-backed SecretRef when secretInputMode=ref for perplexity", async () => {
+  it("stores env-backed SecretRef when secretInputMode=ref for octen", async () => {
     const cfg: OpenClawConfig = {};
-    const { prompter } = createPrompter({ selectValue: "perplexity" });
+    const { prompter } = createPrompter({ selectValue: "octen" });
     const result = await setupSearch(cfg, runtime, prompter, {
       secretInputMode: "ref", // pragma: allowlist secret
     });
-    expect(result.tools?.web?.search?.provider).toBe("perplexity");
-    expect(result.tools?.web?.search?.perplexity?.apiKey).toEqual({
+    expect(result.tools?.web?.search?.provider).toBe("octen");
+    expect(result.tools?.web?.search?.octen?.apiKey).toEqual({
       source: "env",
       provider: "default",
-      id: "PERPLEXITY_API_KEY", // pragma: allowlist secret
-    });
-    expect(prompter.text).not.toHaveBeenCalled();
-  });
-
-  it("stores env-backed SecretRef when secretInputMode=ref for brave", async () => {
-    const cfg: OpenClawConfig = {};
-    const { prompter } = createPrompter({ selectValue: "brave" });
-    const result = await setupSearch(cfg, runtime, prompter, {
-      secretInputMode: "ref", // pragma: allowlist secret
-    });
-    expect(result.tools?.web?.search?.provider).toBe("brave");
-    expect(result.tools?.web?.search?.apiKey).toEqual({
-      source: "env",
-      provider: "default",
-      id: "BRAVE_API_KEY",
+      id: "OCTEN_API_KEY",
     });
     expect(prompter.text).not.toHaveBeenCalled();
   });
@@ -276,16 +213,16 @@ describe("setupSearch", () => {
   it("stores plaintext key when secretInputMode is unset", async () => {
     const cfg: OpenClawConfig = {};
     const { prompter } = createPrompter({
-      selectValue: "brave",
-      textValue: "BSA-plain",
+      selectValue: "octen",
+      textValue: "octen-plain-key", // pragma: allowlist secret
     });
     const result = await setupSearch(cfg, runtime, prompter);
-    expect(result.tools?.web?.search?.apiKey).toBe("BSA-plain");
+    expect(result.tools?.web?.search?.octen?.apiKey).toBe("octen-plain-key");
   });
 
-  it("exports all 5 providers in SEARCH_PROVIDER_OPTIONS", () => {
-    expect(SEARCH_PROVIDER_OPTIONS).toHaveLength(5);
+  it("exports octen provider in SEARCH_PROVIDER_OPTIONS", () => {
+    expect(SEARCH_PROVIDER_OPTIONS).toHaveLength(1);
     const values = SEARCH_PROVIDER_OPTIONS.map((e) => e.value);
-    expect(values).toEqual(["brave", "gemini", "grok", "kimi", "perplexity"]);
+    expect(values).toEqual(["octen"]);
   });
 });
