@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Multi-channel AI gateway with extensible messaging integrations",
   "keywords": ["openclaw", "ai", "agent", "octen"],
-  "homepage": "https://github.com/OctenAI/openclaw#readme",
+  "homepage": "https://github.com/OctenAI/openclaw/tree/octenclaw#readme",
   "bugs": {
     "url": "https://github.com/OctenAI/openclaw/issues"
   },
@@ -11,7 +11,9 @@
   "author": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OctenAI/openclaw.git"
+    "url": "git+https://github.com/OctenAI/openclaw.git",
+    "directory": ".",
+    "branch": "octenclaw"
   },
   "bin": {
     "octenclaw": "openclaw.mjs"
